@@ -187,7 +187,7 @@
         int nbTriangles;
 
         // Ouvrir le fichier en lecture
-        std::ifstream file("/Users/djo/Desktop/MEF/C++/Meshs/"+fileName);
+        std::ifstream file(fileName);
 
         // Vérifier si le fichier est ouvert correctement
         if (!file.is_open()) {

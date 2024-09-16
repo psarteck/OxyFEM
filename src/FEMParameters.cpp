@@ -13,7 +13,7 @@
 
 
 
-    FEMParameters::FEMParameters() : parameterFile("/Users/djo/Desktop/MEF/C++/parameters.txt"){
+    FEMParameters::FEMParameters(std::string fileName) : parameterFile(fileName){
         if(!getParameterValue()){
             std::cerr << "Error in the parameters" << parameterFile << std::endl;
         }

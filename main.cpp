@@ -1,3 +1,14 @@
+/*---------------------------------------------------------------------------*\
+
+ ██████╗ ██╗  ██╗██╗   ██╗     ███████╗███╗   ███╗
+██╔═══██╗╚██╗██╔╝╚██╗ ██╔╝     ██╔════╝████╗ ████║
+██║   ██║ ╚███╔╝  ╚████╔╝█████╗█████╗  ██╔████╔██║
+██║   ██║ ██╔██╗   ╚██╔╝ ╚════╝██╔══╝  ██║╚██╔╝██║
+╚██████╔╝██╔╝ ██╗   ██║        ██║     ██║ ╚═╝ ██║
+ ╚═════╝ ╚═╝  ╚═╝   ╚═╝        ╚═╝     ╚═╝     ╚═╝
+ * 
+ * Copyright (C) 2024 by Matthieu PETIT
+\*---------------------------------------------------------------------------*/
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -102,15 +113,47 @@ int* vectorToArray(std::vector<int>& vec) {
 }
 
 
-int main(){
+int main(int argc, char *argv[]){
 
-    FEMParameters parameters;
+    std::string defaultParam = "parameters.txt";
+    std::string defaultSaveFile = "/Users/djo/Dev/OxyFEM/results/simu1.txt";
+    std::string defaultMeshPath = "/Users/djo/Desktop/MEF/C++/Meshs/";
+
+    std::string firstArgument;
+    std::string secondArgument;
+    std::string thirdArgument;
+
+    if (argc == 4){
+        firstArgument = argv[1];
+        secondArgument = argv[2];
+        thirdArgument = argv[3];
+    } else if (argc == 3) {
+        firstArgument = argv[1];
+        secondArgument = argv[2];
+        thirdArgument = defaultMeshPath;
+    } else if (argc == 2) {
+        firstArgument = argv[1];
+        secondArgument = defaultSaveFile;
+        thirdArgument = defaultMeshPath;
+    } else if (argc == 1) {
+        firstArgument = defaultParam;
+        secondArgument = defaultSaveFile;
+        thirdArgument = defaultMeshPath;
+    } else {
+        std::cerr << "Too much arguments. Needed 2." << std::endl;
+    }
+
+    FEMParameters parameters(firstArgument);
     Mesh mesh;
 
-    bool meshOk = mesh.loadMsh(parameters.getMeshName());
+    cout << endl << "-------- Reading the mesh -------" << endl;
+    bool meshOk = mesh.loadMsh(thirdArgument + parameters.getMeshName());
     if(!meshOk){
-        cout << "Problem reading the mesh " << endl;
+        std::cerr << "Problem reading the mesh " << endl;
+    } else {
+        cout << "The mesh file " << parameters.getMeshName() << " has been correctly read." << endl;
     }
+    cout << "---------------------------------" << endl;
     // mesh.printMesh();
 
     Solver solver(mesh, parameters);
@@ -163,7 +206,7 @@ int main(){
         x[i] = U[i];
     }
 
-    FEMUtilities::saveResults(x, "/Users/djo/Desktop/MEF/C++/results/simu1.txt");
+    FEMUtilities::saveResults(x, secondArgument);
 
 
     // Eigen::MatrixXd lower = FEMUtilities::mat2Eigen(solver.getA());

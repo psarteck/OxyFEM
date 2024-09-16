@@ -18,6 +18,7 @@
 
     class FEMParameters{
     private:
+
         std::string mesh;
         std::string lagrange;
         std::string quadrature;
@@ -29,7 +30,8 @@
 
 
     public:
-        FEMParameters();
+    
+        FEMParameters(std::string fileName);
 
         bool getParameterValue();
 

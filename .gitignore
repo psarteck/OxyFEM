@@ -35,3 +35,4 @@ build/*
 **/exeFEM
 **/oxyTest
 .cache
+tests/references/results.txt
