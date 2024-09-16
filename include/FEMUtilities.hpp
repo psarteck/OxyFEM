@@ -9,7 +9,7 @@
  * 
  * Copyright (C) 2024 by Matthieu PETIT
 \*---------------------------------------------------------------------------*/
-#include "Eigen"
+#include <Eigen/Dense>
 #include <iostream>
 #include <fstream>
 

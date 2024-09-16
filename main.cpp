@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <cassert>
-#include <Eigen>
+#include <Eigen/Dense>
 #include <vector>
 
 #include "Mesh.hpp"
