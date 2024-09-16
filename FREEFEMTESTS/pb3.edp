@@ -1,0 +1,79 @@
+// mesh Th2 = square(10,10,flags=2);
+load "gmsh"
+border Gamma1(t=0,1){x=t;y=0;label=1;}
+border Gamma2(t=0,1){x=1;y=t;;label=2;}
+border Gamma3(t=0,1){x=1-t;y=1;;label=3;}
+border Gamma4(t=0,1){x=0;y=t;;label=4;}
+
+int n = 10;
+// mesh Th = buildmesh(Gamma1(n)+Gamma2(n)+Gamma3(n)+Gamma4(-n));
+
+macro grad(u)[dx(u), dy(u)]//
+
+int[int] labs = [1, 2, 3, 4];
+real x0 = 0;
+real x1 = 1;
+real y0 = 0;
+real y1 = 1;
+// mesh Th = square(n, n, [x0+(x1-x0)*x, y0+(y1-y0)*y]);
+// mesh Th = square(n,n, label=labs, region=0, flags=2);
+
+mesh Th = readmesh("/Users/djo/Desktop/MEF/C++/Meshs/square5FEM.msh");
+
+// savemesh(Th, "/Users/djo/Desktop/MEF/C++/Meshs/square10x10.msh");
+
+plot(Th, wait=1);  
+ 
+  fespace Vh(Th,P1);     
+ Vh uh,vh;              
+//  func fomega=2*pi*pi*sin(pi*x)*sin(pi*y);                 
+ func fomega=(1+2*pi*pi)*cos(pi*x)*cos(pi*y);                 
+ func fN = 10*x - 5*y;
+ func a00 = 1;
+ func u0=0;                 
+ func uD= 100*x + y;
+ func fN1=pi * cos(pi * x) * sin(pi * y);
+ func fN2=pi * sin(pi * x) * cos(pi * y);
+ func fN3=pi * cos(pi * x) * sin(pi * y);
+ func fN4=pi * sin(pi * x) * cos(pi * y);
+ 
+ 
+ problem laplace(uh,vh) = 
+        int2d(Th) (grad(uh)' * grad(vh)) 
+      + int2d(Th) (a00 * uh * vh) 
+      - int2d(Th) (fomega * vh) 
+      - int1d(Th, 1) (fN1 * vh)
+      - int1d(Th, 2) (fN2 * vh)
+      - int1d(Th, 3) (fN3 * vh)
+      - int1d(Th, 4) (fN4 * vh);
+      // + on(1, 2, 3, uh=u0)
+      // + on(4, uh=uD);
+
+  laplace; // solve the problem plot(uh); // to see the result
+  plot(uh,value=true,fill=1, wait=1);
+  // plot(uh,value=true,fill=1);
+
+// Vh uex = cos(pi*x) * cos(pi*y);
+// Vh uex = sin(pi*x) * sin(pi*y);
+Vh uex = cos(pi*x) * cos(pi*y);
+
+Vh error = abs(uh - uex);
+plot(error,value=true,fill=1, wait=1);
+
+
+real errorL2 = int2d(Th)( (uh-uex)^2 ) / int2d(Th)( (uex)^2 );
+
+cout << "Error L2 : " << errorL2 << endl;
+
+
+// Vh u = x^2 + y^2;
+// cout<< "x,y,value" <<endl;
+// for(int i=0; i<Th.nv; i++){
+//     cout<< Th(i).x << "," << Th(i).y << " : " << uh[][i]<<endl;
+// }
+
+ofstream file("/Users/djo/Desktop/MEF/C++/results/solPb3.txt");
+
+for(int i=0; i<Th.nv; i++){
+    file << Th(i).x << " " << Th(i).y << " " << uh[][i]<<endl;
+}

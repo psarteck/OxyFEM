@@ -1,0 +1,7 @@
+mesh=square5FEM.msh
+HomogeneousDirichletLabel=
+DirichletLabel=
+NeumannLabel=1 2 3 4
+DomainLabels=0
+quadrature=gauss 
+lagrange=P1

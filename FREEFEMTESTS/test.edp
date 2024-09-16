@@ -1,0 +1,37 @@
+// mesh Th2 = square(10,10,flags=2);
+
+border Gamma1(t=0,1){x=t;y=0;label=1;}
+border Gamma2(t=0,1){x=1;y=t;;label=2;}
+border Gamma3(t=0,1){x=1-t;y=1;;label=3;}
+border Gamma4(t=0,1){x=0;y=t;;label=4;}
+
+int n = 100;
+// mesh Th = buildmesh(Gamma1(n)+Gamma2(n)+Gamma3(n)+Gamma4(-n));
+
+
+int[int] labs = [1, 2, 3, 4];
+mesh Th = square(n,n, label=labs, region=0, flags=2);
+
+plot(Th, wait=1); 
+ 
+  fespace Vh(Th,P1);     // P1 FE space
+ Vh uh,vh;              // unkown and test function. 
+ func f=32*(x*(1-x) + y*(1-y));                 //  right hand side function 
+ func g=0;                 //  boundary condition function
+ 
+ problem laplace(uh,vh) =                    //  definion of  the problem 
+    int2d(Th)( dx(uh)*dx(vh) + dy(uh)*dy(vh) ) //  bilinear form
+  + int1d(Th,1)( uh*vh) 
+  // - int1d(Th,1)( vh)
+  - int2d(Th)( f*vh )  ;                        //  linear form
+  // + on(1,2,3,4,uh=0) ;                      //  boundary condition form
+
+  laplace; // solve the problem plot(uh); // to see the result
+  plot(uh,value=true,fill=1);
+
+for(int i = 0 ; i < 9 ; i++){
+  cout << uh[][i] << endl;
+}
+real[int] tot = int2d(Th)( f*vh );
+
+cout << tot << endl;

@@ -1,0 +1,45 @@
+// mesh Th2 = square(10,10,flags=2);
+
+// border Gamma1(t=0,1){x=t;y=0;label=1;}
+// border Gamma2(t=0,1){x=1;y=t;;label=2;}
+// border Gamma3(t=0,1){x=1-t;y=1;;label=3;}
+// border Gamma4(t=0,1){x=0;y=t;;label=4;}
+
+// int n = 100;
+// // mesh Th = buildmesh(Gamma1(n)+Gamma2(n)+Gamma3(n)+Gamma4(-n));
+
+
+// int[int] labs = [1, 2, 3, 4];
+// mesh Th = square(n,n, label=labs, region=0, flags=2);
+
+// plot(Th, wait=1); 
+
+load "gmsh"
+mesh Th=gmshload("/Users/djo/Desktop/MEF/C++/Meshs/square2.msh");
+plot(Th, wait=1); 
+
+// macro grad(u)[dx(u), dy(u)]//
+ 
+//   fespace Vh(Th,P1);     // P1 FE space
+//  Vh uh,vh;              // unkown and test function. 
+//  func f=32*(x*(1-x)+y*(1-y));                 //  right hand side function 
+//  func u0=0;                 //  boundary condition function
+ 
+//  problem laplace(uh,vh) =                    //  definion of  the problem 
+//     int2d(Th) (grad(uh)' * grad(vh)) - int2d(Th) (f * vh) + on(1,2,3,4, uh = u0);
+//   laplace; // solve the problem plot(uh); // to see the result
+//   plot(uh,value=true,fill=1, wait=1);
+
+// Vh uex = 16*x*y*(1 - x)*(1 - y);
+
+// Vh error = uh - uex;
+// plot(error,value=true,fill=1, wait=1);
+
+
+
+// for(int i = 0 ; i < 9 ; i++){
+//   cout << uh[][i] << endl;
+// }
+// real errorL2 = int2d(Th)( (uh-uex)^2 ) / int2d(Th)( (uex)^2 );
+
+// cout << "Error L2 : " << errorL2 << endl;
