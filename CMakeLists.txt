@@ -41,3 +41,7 @@ add_executable(exeFEM ${SOURCES})
 target_compile_features(exeFEM PRIVATE cxx_std_17)
 
 target_link_libraries(exeFEM Eigen3::Eigen)
+
+
+enable_testing()
+add_subdirectory(tests)

@@ -1,0 +1,49 @@
+name: OxyFEM CI 
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Étape 1 : Get the source code and submodule
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: true  # Clone the submodule
+
+      # Étape 2 : Install dependancies (CMake, G++, Google Test)
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ libgtest-dev
+
+      # Étape 3 : Compile Google Test (if necessary)
+      - name: Build Google Test
+        run: |
+          cd /usr/src/gtest
+          sudo cmake .
+          sudo make
+          sudo cp *.a /usr/lib
+
+      # Étape 4 : Create the build repo
+      - name: Create build directory
+        run: mkdir -p build
+
+      # Étape 5 : Compiling the project with CMake 
+      - name: Build project
+        run: |
+          cd build
+          cmake ..
+          make
+
+      # Étape 6 : Execute the tests
+      - name: Run tests
+        run: ./build/tests/OxyTests  
