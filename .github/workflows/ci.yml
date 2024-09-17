@@ -25,7 +25,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake g++ libgtest-dev
 
-      # Step 3 : Compile Google Test
+      # Step 3 : Install Python
+      - name : Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      # Step 4 : Install matplotlib numpy
+      - name: Install Python dependencies
+        run: pip install matplotlib numpy
+
+          
+      # Step 5 : Compile Google Test
       - name: Build Google Test
         run: |
           cd /usr/src/gtest
@@ -33,18 +44,29 @@ jobs:
           sudo make
           # sudo cp *.a /usr/lib
 
-      # Étape 3 : Create the build repo
+      # Step 6 : Create the build repo
       - name: Create build directory
         run: mkdir -p build
 
-      # Étape 4 : Compiling the project with CMake 
+      # Step 7 : Compiling the project with CMake 
       - name: Build project
         run: |
           cd build
           cmake -DUSE_TEST_PROBLEM=ON ..
           make
 
-      # Étape 5 : Execute the tests
+      # Step 8 : Execute the tests
       - name: Run tests
         working-directory: ${{ github.workspace }}
         run: ./build/tests/oxyTest
+
+      # Step 9 : Generate graph
+      - name: Generate graphs
+        run: python3 tests/graph.py
+      
+      # Step 10 : Load the grpah
+      - name: Upload graph artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-graphs
+          path: tests/references/graph.png

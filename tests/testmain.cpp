@@ -54,7 +54,7 @@ TEST(NonRegressionTest, CompareOutputWithReference) {
 
     std::cout << "Current directory : " << GetCurrentWorkingDirectory() << std::endl;
 
-    std::string executablePath = "./exeFEM";
+    std::string executablePath = "./build/exeFEM";
     std::string parametersFile = "./tests/references/parameters.txt";
     std::string meshsPath = "./Meshs/";
     std::string resultsFile = "./tests/references/results.txt";
