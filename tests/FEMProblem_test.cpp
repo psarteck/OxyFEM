@@ -57,7 +57,6 @@ double FOMEGA(std::vector<double> x){
 }
 
 double FN(std::vector<double> x_, int numAret){
-    std::cout << "azeaze" << std::endl;
     double x(x_[0]);
     double y(x_[1]);
 
