@@ -54,17 +54,17 @@ TEST(NonRegressionTest, CompareOutputWithReference) {
 
     std::cout << "Current directory : " << GetCurrentWorkingDirectory() << std::endl;
 
-    std::string executablePath = "./build/exeFEM";
-    std::string parametersFile = "./tests/references/parameters.txt";
-    std::string meshsPath = "./Meshs/";
-    std::string resultsFile = "./tests/references/results.txt";
+    std::string executablePath = "../exeFEM";
+    std::string parametersFile = "../../tests/references/parameters.txt";
+    std::string meshsPath = "../../Meshs/";
+    std::string resultsFile = "../../tests/references/results.txt";
 
     std::string command = executablePath + " " + parametersFile + " " + resultsFile + " " + meshsPath;
     int result = system(command.c_str());
     
     ASSERT_EQ(result, 0) << "Error : The exectution of " << command << " crashed with the code : " << result;
 
-    std::string referenceFile = "./tests/references/refNeumann.txt";
+    std::string referenceFile = "../../tests/references/refNeumann.txt";
     EXPECT_TRUE(CompareFiles(resultsFile, referenceFile, 1e-6));
 
 }

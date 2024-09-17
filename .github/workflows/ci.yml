@@ -57,8 +57,7 @@ jobs:
 
       # Step 8 : Execute the tests
       - name: Run tests
-        working-directory: ${{ github.workspace }}
-        run: ./build/tests/oxyTest
+        run: ctest --output-on-failure --test-dir build/tests/
 
       # Step 9 : Generate graph
       - name: Generate graphs
@@ -66,7 +65,7 @@ jobs:
       
       # Step 10 : Load the grpah
       - name: Upload graph artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: performance-graphs
           path: tests/references/graph.png
