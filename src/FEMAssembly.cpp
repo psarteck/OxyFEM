@@ -158,159 +158,6 @@ namespace FEMAssembly {
     }
 
 
-    void ASSMAT(int i, int j, float x, 
-            std::vector<int>& adprcl, 
-            std::vector<int>& numcol, 
-            std::vector<int>& adsucl, 
-            std::vector<float>& lmatri, 
-            int& nextad) {
-    
-        // Vérification si i <= j, ce qui signifie que nous sommes hors de la partie triangulaire inférieure stricte
-        if (i <= j) {
-            std::cerr << "*Bug* La procédure ASSMAT n'est utilisée que pour l'assemblage de la partie triangulaire stricte. "
-                    << "Vous êtes sur le coefficient (" << i << ", " << j << ")." << std::endl;
-            std::exit(EXIT_FAILURE); // Stoppe le programme
-        }
-
-        // Ajustement des indices pour C++ (indexation de 0)
-        i -= 1;
-        j -= 1;
-
-        // IAD est l'adresse du premier coefficient de la ligne i
-        int iad = adprcl[i];
-
-        if (iad > 0) {
-            // La ligne i a déjà été rencontrée : recherche de la colonne j
-            while (numcol[iad] != j) {
-                int nxt = adsucl[iad];
-                if (nxt <= 0) {
-                    // Si on atteint la fin de la ligne sans trouver j, on sort pour créer une nouvelle colonne
-                    break;
-                }
-                iad = nxt;
-            }
-
-            if (numcol[iad] == j) {
-                // L'élément A(i,j) existe déjà : on l'incrémente
-                lmatri[iad] += x;
-                return; // Sortir de la fonction
-            }
-
-            // Création d'une nouvelle colonne j dans la ligne i
-            adsucl[iad] = nextad;
-        } else {
-            // La ligne i n'a pas encore été rencontrée : création de la ligne i
-            adprcl[i] = nextad;
-        }
-
-        // Création du coefficient A(i,j) (nouvelle ligne ou nouvelle colonne)
-        numcol[nextad] = j;
-        lmatri[nextad] = x;
-        adsucl[nextad] = 0; // Marque la fin de la ligne
-
-        // Mise à jour de la prochaine adresse libre
-        nextad++;
-    }
-
-
-    // Prototype de la fonction de tri qui sera utilisée pour trier les colonnes
-    void TRI(int size, std::vector<int>::iterator numco, std::vector<double>::iterator matri) {
-        // Tri simultané des colonnes et des coefficients
-        for (int i = 0; i < size - 1; i++) {
-            for (int j = i + 1; j < size; j++) {
-                if (*(numco + i) > *(numco + j)) {
-                    std::swap(*(numco + i), *(numco + j));
-                    std::swap(*(matri + i), *(matri + j));
-                }
-            }
-        }
-    }
-
-
-
-    void CDESSE(int nblign, 
-            std::vector<int>& adprcl, 
-            std::vector<int>& numcol, 
-            std::vector<int>& adsucl, 
-            std::vector<double>& matris, 
-            std::vector<double>& secmbr, 
-            std::vector<int>& nuddir, 
-            std::vector<double>& valdir, 
-            std::vector<int>& adprc0, 
-            std::vector<int>& numco0, 
-            std::vector<double>& matri0, 
-            std::vector<double>& secmb0) {
-
-        int admatr, admat0, admat1, admatx;
-
-        // Copier les valeurs de secmbr et matris dans secmb0 et matri0
-        for (int i = 0; i < nblign; i++) {
-            secmb0[i] = secmbr[i];
-            matri0[i] = matris[i];
-        }
-
-        // Traitement du premier nœud Dirichlet
-        if (nuddir[0] < 0) {
-            secmb0[0] = matri0[0] * valdir[0];
-        } else if (nuddir[0] <= 0) {
-            secmb0[0] = 0.0f;
-        }
-
-        // Initialisation des adresses
-        admat0 = 0; // Correspond à la première adresse dans A0
-        admatx = adprcl[0]; // Première adresse dans la partie triangulaire inférieure de A
-
-        // Boucle sur les lignes à partir de la seconde
-        for (int i = 1; i < nblign; i++) {
-            admatr = admatx;
-            admatx = adprcl[i];
-            adprc0[i - 1] = admat0;
-
-            if (nuddir[i] <= 0) {
-                // Cas des lignes Dirichlet
-                secmb0[i] = 0.0f;
-                if (nuddir[i] < 0) {
-                    secmb0[i] = matris[i] * valdir[i];
-                }
-
-                // Parcours des éléments de la ligne
-                while (admatr != 0) {
-                    int j = numcol[admatr-1];
-                    if (nuddir[j] > 0) {
-                        secmb0[j] -= matris[nblign + admatr -1] * valdir[i];
-                    }
-                    admatr = adsucl[admatr -1];
-                }
-
-            } else {
-                // Cas des lignes non Dirichlet
-                admat1 = admat0;
-
-                // Parcours des éléments de la ligne
-                while (admatr != 0) {
-                    int j = numcol[admatr - 1];
-                    if (nuddir[j] < 0) {
-                        // Cas Dirichlet non homogène : mise à jour du second membre
-                        secmb0[i] -= matris[nblign + admatr -1] * valdir[j];
-                    } else if (nuddir[j] > 0) {
-                        // Conserver le coefficient
-                        matri0[nblign + admat0 - 1] = matris[nblign + admatr - 1];
-                        numco0[admat0 - 1] = j;
-                        admat0++;
-                    }
-                    admatr = adsucl[admatr - 1];
-                }
-
-                // Tri des colonnes de la ligne par ordre croissant
-                if (admat0 > admat1) {
-                    TRI(admat0 - admat1, numco0.begin() + admat1, matri0.begin() + nblign + admat1);
-                }
-            }
-        }
-
-        adprc0[nblign - 1] = admat0;
-    }
-
 
     void ltlpr(int rang, 
            const std::vector<int>& profil, 
@@ -420,17 +267,18 @@ namespace FEMAssembly {
         }
     }
 
-
-
-    void cdesse(const int *NBLIGN, const int *ADPRCL, const int *NUMCOL,
-                const int *ADSUCL, const float *MATRIS, const float *SECMBR,
-                const int *NUDDIR, const float *VALDIR,
-                int *ADPRC0, int *NUMCO0, float *MATRI0, float *SECMB0) {
+    void cdesse(const int NBLIGN, const std::vector<int>& ADPRCL, 
+                      const std::vector<int>& NUMCOL,
+                      const std::vector<int>& ADSUCL, const std::vector<double>& MATRIS, 
+                      const std::vector<double>& SECMBR,
+                      const std::vector<int>& NUDDIR, const std::vector<double>& VALDIR,
+                      std::vector<int>& ADPRC0, std::vector<int>& NUMCO0, 
+                      std::vector<double>& MATRI0, std::vector<double>& SECMB0) {
 
         int admatr, admat0, admat1, admatx;
 
         // Loop to copy elements from SECMBR and MATRIS to SECMB0 and MATRI0
-        for (int i = 0; i < *NBLIGN; ++i) {  
+        for (int i = 0; i < NBLIGN; ++i) {  
             SECMB0[i] = SECMBR[i];
             MATRI0[i] = MATRIS[i];
         }
@@ -439,7 +287,7 @@ namespace FEMAssembly {
         if (NUDDIR[0] < 0) {
             SECMB0[0] = MATRI0[0] * VALDIR[0];
         } else if (NUDDIR[0] <= 0) {
-            SECMB0[0] = 0.0f;
+            SECMB0[0] = 0.0;
         }
 
         // Initializing addresses for the lower triangular part
@@ -447,23 +295,26 @@ namespace FEMAssembly {
         admatx = ADPRCL[0];
 
         // Main loop starting from the 2nd row
-        for (int i = 1; i < *NBLIGN; ++i) {
+        for (int i = 1; i < NBLIGN ; ++i) {
 
             admatr = admatx;  // Address of the first coefficient of row i-1
             admatx = ADPRCL[i];  // Address of the first coefficient of row i
             ADPRC0[i - 1] = admat0;  // Updating ADPRC0 for the previous row
             if (NUDDIR[i] <= 0) {
                 // Dirichlet case
-                SECMB0[i] = 0.0f;
+                SECMB0[i] = 0.0;
                 if (NUDDIR[i] < 0) {
+                    // cout << "i " << i << endl;
+            // cout << "NUDDIR[i] " << NUDDIR[i] << endl;
                     SECMB0[i] = MATRIS[i] * VALDIR[i];
+                    // cout << "SECMB0[i] " << SECMB0[i] << endl;
                 }
 
                 while (admatr != 0) {
                     int j = NUMCOL[admatr - 1];  // Column number
 
                     if (NUDDIR[j - 1] > 0) {
-                        SECMB0[j - 1] -= MATRIS[*NBLIGN + admatr - 1] * VALDIR[i];
+                        SECMB0[j - 1] -= MATRIS[NBLIGN + admatr - 1] * VALDIR[i];
                     }
                     admatr = ADSUCL[admatr - 1];  // Address of the next coefficient
                 }
@@ -476,10 +327,10 @@ namespace FEMAssembly {
 
                     if (NUDDIR[j - 1] < 0) {
                         // Case of a non-homogeneous Dirichlet column
-                        SECMB0[i] -= MATRIS[*NBLIGN + admatr - 1] * VALDIR[j - 1];
+                        SECMB0[i] -= MATRIS[NBLIGN + admatr - 1] * VALDIR[j - 1];
                     } else if (NUDDIR[j - 1] > 0) {
                         // Non-Dirichlet column case: coefficient is kept
-                        MATRI0[*NBLIGN + admat0 - 1] = MATRIS[*NBLIGN + admatr - 1];
+                        MATRI0[NBLIGN + admat0 - 1] = MATRIS[NBLIGN + admatr - 1];
                         NUMCO0[admat0 - 1] = j;
                         admat0 += 1;
                     }
@@ -490,19 +341,22 @@ namespace FEMAssembly {
                 // Sorting columns of the row in ascending order
                 if (admat0 > admat1) {
                     // Calling the `tri` function to sort NTAB (NUMCO0) and RTAB (MATRI0)
-                    tri(admat0 - 1 - admat1, NUMCO0 + admat1, MATRI0 + (*NBLIGN + admat1));
+                    tri(admat0 - 1 - admat1, NUMCO0.begin() + admat1, MATRI0.begin() + (NBLIGN + admat1));
+
+                    // tri(admat0 - 1 - admat1, NUMCO0 + admat1, MATRI0 + (*NBLIGN + admat1));
+
                 }
             }
         }
 
         // Final update of ADPRC0 for the last row
-        ADPRC0[*NBLIGN - 1] = admat0;
+        ADPRC0[NBLIGN - 1] = admat0;
     }
 
-    void tri(int N, int *NTAB, float *RTAB) {
+    void tri(int N, std::vector<int>::iterator NTAB, std::vector<double>::iterator RTAB) {
         bool permut;
         int aux1;
-        float aux2;
+        double aux2;
 
         int i = 0;  
         do {
@@ -511,16 +365,16 @@ namespace FEMAssembly {
 
             // Loop to compare and swap elements in NTAB and RTAB
             for (int j = N - 1; j >= i; --j) {
-                if (NTAB[j] < NTAB[j - 1]) {
+                if ( *(NTAB + j) < *(NTAB + j - 1) ) {
                     // Swap in NTAB
-                    aux1 = NTAB[j - 1];
-                    NTAB[j - 1] = NTAB[j];
+                    aux1 = *(NTAB + j - 1);
+                    *(NTAB + j - 1) = *(NTAB + j);
                     NTAB[j] = aux1;
 
                     // Swap in RTAB
-                    aux2 = RTAB[j - 1];
-                    RTAB[j - 1] = RTAB[j];
-                    RTAB[j] = aux2;
+                    aux2 = *(RTAB + j - 1);
+                    *(RTAB + j - 1) = *(RTAB + j);
+                    *(RTAB + j) = aux2;
 
                     permut = true;
                 }

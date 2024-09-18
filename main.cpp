@@ -31,31 +31,15 @@
 
 using namespace std;
 
-
-void dSMDaSMO(int NbLign, int AdPrCoefLi[], int NumCol[], int AdSuccLi[], float Matrice[], 
-            float SecMembre[], int NumDLDir[], float ValDLDir[], int NumColO[], float MatriceO[]){
-    
-    
-    // cdesse_(&NbLign, AdPrCoefLi, NumCol, AdSuccLi, Matrice,SecMembre, NumDLDir, ValDLDir, AdPrCoefLi, NumColO, MatriceO, SecMembre);
-
-    FEMAssembly::cdesse(&NbLign, AdPrCoefLi, NumCol, AdSuccLi, Matrice,SecMembre, NumDLDir, ValDLDir, AdPrCoefLi, NumColO, MatriceO, SecMembre);
-    
-    
-}
-
-void dSMDaSMOVector(int& NbLign, std::vector<int>& AdPrCoefLi, std::vector<int>& NumCol, std::vector<int>& AdSuccLi, std::vector<double>& Matrice, 
+void dSMDaSMO(int& NbLign, std::vector<int>& AdPrCoefLi, std::vector<int>& NumCol, std::vector<int>& AdSuccLi, std::vector<double>& Matrice, 
             std::vector<double>& SecMembre, std::vector<int>& NumDLDir, std::vector<double>& ValDLDir, std::vector<int>& NumColO, std::vector<double>& MatriceO){
-    
-    
-    // cdesse_(&NbLign, AdPrCoefLi, NumCol, AdSuccLi, Matrice,SecMembre, NumDLDir, ValDLDir, AdPrCoefLi, NumColO, MatriceO, SecMembre);
-    
-    FEMAssembly::CDESSE(NbLign, AdPrCoefLi, NumCol, AdSuccLi, Matrice, SecMembre, NumDLDir, ValDLDir, AdPrCoefLi, NumColO, MatriceO, SecMembre);
+        
+    FEMAssembly::cdesse(NbLign, AdPrCoefLi, NumCol, AdSuccLi, Matrice, SecMembre, NumDLDir, ValDLDir, AdPrCoefLi, NumColO, MatriceO, SecMembre);
     
 }
 
-
-void dSMOaPR(int NbLign, int *NbCoeff, int AdPrCoefLiO[], float MatriceO[], int NumColO[], 
-            float **MatProf, int Profil[]){
+void dSMOaPR(const int NbLign, int& NbCoeff, std::vector<int>& AdPrCoefLiO, std::vector<double>& MatriceO, std::vector<int>& NumColO, 
+            std::vector<double>& MatProf, std::vector<int>& Profil){
     
     int tailleMat = 1;
     Profil[0] = 1;
@@ -65,20 +49,20 @@ void dSMOaPR(int NbLign, int *NbCoeff, int AdPrCoefLiO[], float MatriceO[], int 
         }
         Profil[i] = tailleMat;
     }
-    *NbCoeff = tailleMat-1;
+    NbCoeff = tailleMat-1;
 
-    *MatProf = new float[NbLign+tailleMat-1];
+    MatProf.resize(NbLign+tailleMat-1);
 
     for (int i = 0 ; i < NbLign+tailleMat ; i ++){
-        (*MatProf)[i] = 0;
+        MatProf[i] = 0;
     }
     for (int i = 0 ; i < NbLign ; i ++){
-        (*MatProf)[i] = MatriceO[i];
+        MatProf[i] = MatriceO[i];
     }
     
     for(int i = 0 ; i < NbLign-1 ; i ++){
         for(int j = AdPrCoefLiO[i] ; j < AdPrCoefLiO[i+1] ; j++){
-            (*MatProf)[NbLign+Profil[i]-1+NumColO[j-1]-NumColO[AdPrCoefLiO[i]-1]]  = MatriceO[j-1+NbLign];
+            MatProf[NbLign+Profil[i]-1+NumColO[j-1]-NumColO[AdPrCoefLiO[i]-1]]  = MatriceO[j-1+NbLign];
         }
     }
     
@@ -166,11 +150,8 @@ int main(int argc, char *argv[]){
 
     solver.assemble();
 
-    std::vector<double> Ad = solver.getA();
-    std::vector<double> bd = solver.getb();
-
-    float* A = vectorToArray(Ad, 0);
-    float* b = vectorToArray(bd, 0);
+    std::vector<double>& Ad = solver.getA();
+    std::vector<double>& bd = solver.getb();
 
     int nbLign = solver.getNbLign();
     int nbCoeff = solver.getNbCoeff();
@@ -182,29 +163,48 @@ int main(int argc, char *argv[]){
     std::vector<int>& dAdSuccLi = solver.getAdSuccLi();
     std::vector<int>& dNumDLDir = solver.getNumDLDir();
     std::vector<double>& dValDLDir = solver.getValDLDir();
-
-    float* MatriceO = new float[nbLign+nbCoeff];
-    int* NumColO = new int[nbCoeff];
-
-    int* AdPrCoefLi = vectorToArray(dAdPrCoefLi);
-    int* NumCol = vectorToArray(dNumCol);
-    int* AdSuccLi = vectorToArray(dAdSuccLi);
-    int* NumDLDir = vectorToArray(dNumDLDir);
-    float* ValDLDir = vectorToArray(dValDLDir);
     
     std::vector<double> dMatriceO(nbCoeff+nbLign, 0.0);
-    std::vector<int> dNumColO(nbCoeff, 0.0);
-
-    dSMDaSMO(nbLign, AdPrCoefLi, NumCol, AdSuccLi, A, b, NumDLDir, ValDLDir, NumColO, MatriceO);
-    // dSMDaSMOVector(nbLign, dAdPrCoefLi, dNumCol, dAdSuccLi, Ad, bd, dNumDLDir, dValDLDir, dNumColO, dMatriceO);
+    std::vector<int> dNumColO(nbCoeff, 0);
 
 
-    float *MatProf;
-    
-    int *Profil = new int[nbLign];
+    dSMDaSMO(nbLign, dAdPrCoefLi, dNumCol, dAdSuccLi, Ad, bd, dNumDLDir, dValDLDir, dNumColO, dMatriceO);
 
-    dSMOaPR(nbLign, &nbCoeff, AdPrCoefLi, MatriceO, NumColO, &MatProf, Profil);
+    Ad.clear();
+    Ad.shrink_to_fit();
 
+    dAdSuccLi.clear();
+    dAdSuccLi.shrink_to_fit();
+
+    dNumCol.clear();
+    dNumCol.shrink_to_fit();
+
+    dNumDLDir.clear();
+    dNumDLDir.shrink_to_fit();
+
+    dValDLDir.clear();
+    dValDLDir.shrink_to_fit();
+
+
+    int* AdPrCoefLi = vectorToArray(dAdPrCoefLi);
+    float* MatriceO = vectorToArray(dMatriceO);
+    int* NumColO = vectorToArray(dNumColO);
+
+    std::vector<double> dMatProf;
+    std::vector<int> dProfil(nbLign, 0);
+
+    dSMOaPR(nbLign, nbCoeff, dAdPrCoefLi, dMatriceO, dNumColO, dMatProf, dProfil);
+
+    dMatriceO.clear();
+    dMatriceO.shrink_to_fit();
+
+    dNumColO.clear();
+    dNumColO.shrink_to_fit();
+
+
+    int* Profil = vectorToArray(dProfil);
+    float* MatProf = vectorToArray(dMatProf);
+    float* b = vectorToArray(bd);
 
     float *U = new float[nbLign];
 
@@ -217,19 +217,6 @@ int main(int argc, char *argv[]){
     }
 
     FEMUtilities::saveResults(x, secondArgument);
-
-
-    // Eigen::MatrixXd lower = FEMUtilities::mat2Eigen(solver.getA());
-    // Eigen::VectorXd b = FEMUtilities::vec2Eigen(solver.getb());
-
-    // Eigen::MatrixXd A = lower.selfadjointView<Eigen::Upper>();
-
-
-    // Eigen::VectorXd x = A.fullPivLu().solve(b);    
-
-    // printf("Size : %td", x.size());
-
-    // FEMUtilities::saveResults(x, "results/simu1.txt");
 
     return 0;
 }

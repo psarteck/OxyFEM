@@ -20,30 +20,6 @@ namespace FEMAssembly {
                 const std::vector<int>& numco0, 
                 const std::vector<float>& matri0, 
                 const std::vector<float>& secmb0);
-    
-    void ASSMAT(int i, int j, float x, 
-            std::vector<int>& adprcl, 
-            std::vector<int>& numcol, 
-            std::vector<int>& adsucl, 
-            std::vector<float>& lmatri, 
-            int& nextad);
-
-    void TRI(int size, std::vector<int>::iterator numco, std::vector<double>::iterator matri);
-
-
-    void CDESSE(int nblign, 
-            std::vector<int>& adprcl, 
-            std::vector<int>& numcol, 
-            std::vector<int>& adsucl, 
-            std::vector<double>& matris, 
-            std::vector<double>& secmbr, 
-            std::vector<int>& nuddir, 
-            std::vector<double>& valdir, 
-            std::vector<int>& adprc0, 
-            std::vector<int>& numco0, 
-            std::vector<double>& matri0, 
-            std::vector<double>& secmb0);
-
 
     void ltlpr(int rang, 
            const std::vector<int>& profil, 
@@ -60,15 +36,18 @@ namespace FEMAssembly {
            const std::vector<float>& l, 
            const std::vector<float>& b, 
            std::vector<float>& x);
-           
     
-    void cdesse(const int *NBLIGN, const int *ADPRCL, const int *NUMCOL,
-            const int *ADSUCL, const float *MATRIS, const float *SECMBR,
-            const int *NUDDIR, const float *VALDIR,
-            int *ADPRC0, int *NUMCO0, float *MATRI0, float *SECMB0);
+    
+    void cdesse(const int NBLIGN, const std::vector<int>& ADPRCL, 
+                      const std::vector<int>& NUMCOL,
+                      const std::vector<int>& ADSUCL, const std::vector<double>& MATRIS, 
+                      const std::vector<double>& SECMBR,
+                      const std::vector<int>& NUDDIR, const std::vector<double>& VALDIR,
+                      std::vector<int>& ADPRC0, std::vector<int>& NUMCO0, 
+                      std::vector<double>& MATRI0, std::vector<double>& SECMB0);
 
 
-    void tri(int N, int *NTAB, float *RTAB);
+    void tri(int N, std::vector<int>::iterator NTAB, std::vector<double>::iterator RTAB);
 
 
 }
