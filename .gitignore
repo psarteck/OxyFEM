@@ -37,5 +37,7 @@ build/*
 .cache
 tests/references/results.txt
 
-
 .vscode
+
+results/simu1.txt
+results/solPb3.txt

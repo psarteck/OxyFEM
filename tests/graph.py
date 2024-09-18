@@ -7,15 +7,22 @@ name = "./tests/references/results.txt"
 data = np.loadtxt(name)
 tab = data[:].astype(float)
 taille = np.sqrt(len(tab[:])).astype(int)
-
 U = tab.reshape((taille,taille))
 x = np.linspace(0, 1, taille)
 y = np.linspace(0, 1, taille)
 X, Y = np.meshgrid(x, y)
 
+nameRef = "./tests/references/refNeDir.txt"
+dataRef = np.loadtxt(name)
+tabRef = dataRef[:].astype(float)
+URef = tab.reshape((taille,taille))
+
+
 uex = np.cos(np.pi * X) * np.cos(np.pi * Y)
-errorAbs = np.linalg.norm(U - uex)
 absUex = np.linalg.norm(uex)
+
+errorAbs = np.linalg.norm(U - URef)
+absURef = np.linalg.norm(URef)
 relativeError = errorAbs / absUex
 txtRelErr = np.round(relativeError, 5) * 100
 
