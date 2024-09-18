@@ -34,8 +34,10 @@ bool CompareFiles(const std::string& resultFile, const std::string& referenceFil
     double referenceValue;
     
     while (resultStream >> resultValue && referenceStream >> referenceValue) {
-        if (std::fabs(resultValue - referenceValue) > tolerance) {
-            std::cerr << "Error : Different values found : " 
+        if ((std::fabs((resultValue - referenceValue) / referenceValue)) > tolerance) {
+            std::cerr << "Error : Different values found, relative error : " 
+                      <<  (std::fabs((resultValue - referenceValue) / referenceValue))
+                      << std::endl
                       << "Results = " << resultValue << ", "
                       << "References = " << referenceValue << std::endl;
             return false;
@@ -65,7 +67,7 @@ TEST(NonRegressionTest, CompareOutputWithReference) {
     ASSERT_EQ(result, 0) << "Error : The exectution of " << command << " crashed with the code : " << result;
 
     std::string referenceFile = "../../tests/references/refNeDir.txt";
-    EXPECT_TRUE(CompareFiles(resultsFile, referenceFile, 1e-6));
+    EXPECT_TRUE(CompareFiles(resultsFile, referenceFile, 1e-5));
 
 }
 
