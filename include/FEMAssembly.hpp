@@ -28,21 +28,21 @@ namespace FEMAssembly {
             std::vector<float>& lmatri, 
             int& nextad);
 
-    void TRI(int size, std::vector<int>::iterator numco, std::vector<float>::iterator matri);
+    void TRI(int size, std::vector<int>::iterator numco, std::vector<double>::iterator matri);
 
 
     void CDESSE(int nblign, 
             std::vector<int>& adprcl, 
             std::vector<int>& numcol, 
             std::vector<int>& adsucl, 
-            std::vector<float>& matris, 
-            std::vector<float>& secmbr, 
+            std::vector<double>& matris, 
+            std::vector<double>& secmbr, 
             std::vector<int>& nuddir, 
-            std::vector<float>& valdir, 
+            std::vector<double>& valdir, 
             std::vector<int>& adprc0, 
             std::vector<int>& numco0, 
-            std::vector<float>& matri0, 
-            std::vector<float>& secmb0);
+            std::vector<double>& matri0, 
+            std::vector<double>& secmb0);
 
 
     void ltlpr(int rang, 
@@ -62,7 +62,13 @@ namespace FEMAssembly {
            std::vector<float>& x);
            
     
+    void cdesse(const int *NBLIGN, const int *ADPRCL, const int *NUMCOL,
+            const int *ADSUCL, const float *MATRIS, const float *SECMBR,
+            const int *NUDDIR, const float *VALDIR,
+            int *ADPRC0, int *NUMCO0, float *MATRI0, float *SECMB0);
 
+
+    void tri(int N, int *NTAB, float *RTAB);
 
 
 }

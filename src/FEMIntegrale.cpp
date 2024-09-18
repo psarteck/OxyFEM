@@ -11,7 +11,7 @@
 \*---------------------------------------------------------------------------*/
 #include "FEMIntegrale.hpp"
 
-
+#define FREEMESH 1
 
 int FEMIntegrale::returnQ(std::string type){
 	if(type == "Q1"){
@@ -33,16 +33,20 @@ std::vector<double> FEMIntegrale::baseFunctions(const Node& pts, const std::stri
         valBase.push_back(pts.getX()*pts.getY() - pts.getY() - pts.getX() + 1);   
     }
     else if(type == "T1"){
-        // if (number % 2 == 1){
+#if FREEMESH == 1
+        if (number % 2 == 1){
+#endif
             valBase.push_back(pts.getX());
             valBase.push_back(pts.getY());
             valBase.push_back(1 - pts.getX() - pts.getY());
-        // }
-        // else {
-            // valBase.push_back(1 - pts.getX() - pts.getY());
-            // valBase.push_back(pts.getX());
-            // valBase.push_back(pts.getY());
-        // }
+#if FREEMESH == 1
+        }
+        else {
+            valBase.push_back(1 - pts.getX() - pts.getY());
+            valBase.push_back(pts.getX());
+            valBase.push_back(pts.getY());
+        }
+#endif
         
     }
     else if(type == "S1"){
@@ -70,16 +74,20 @@ std::vector<std::vector<double> > FEMIntegrale::baseDerFunctions(const Node& pts
         // valDerBase.push_back({-pts.getX(), pts.getX(), 1-pts.getX(), pts.getX() - 1});   
     }
     else if(type == "T1"){
-        // if (number % 2 == 1){
+#if FREEMESH == 1
+        if (number % 2 == 1){
+#endif
             valDerBase.push_back({1, 0});
             valDerBase.push_back({0, 1});
             valDerBase.push_back({-1, -1});
-        // }
-        // else {
-            // valDerBase.push_back({-1, -1});
-            // valDerBase.push_back({1, 0});
-            // valDerBase.push_back({0, 1});
-        // }
+#if FREEMESH == 1
+        }
+        else {
+            valDerBase.push_back({-1, -1});
+            valDerBase.push_back({1, 0});
+            valDerBase.push_back({0, 1});
+        }
+#endif
         // valDerBase.push_back({1, 0, -1});
         // valDerBase.push_back({0, 1, -1});
     }

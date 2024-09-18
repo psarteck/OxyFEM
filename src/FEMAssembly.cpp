@@ -13,12 +13,13 @@
 #include <iomanip> // Pour gérer la mise en forme des sorties
 #include <limits>  // Pour gérer les erreurs lors de la lecture
 #include <cmath>
+#include <algorithm>
 
 #include "FEMAssembly.hpp"
 
 
 namespace FEMAssembly {
-
+    using namespace std;
     void AFFSMD(int nblign, 
                 const std::vector<int>& adprcl, 
                 const std::vector<int>& numcol, 
@@ -213,7 +214,7 @@ namespace FEMAssembly {
 
 
     // Prototype de la fonction de tri qui sera utilisée pour trier les colonnes
-    void TRI(int size, std::vector<int>::iterator numco, std::vector<float>::iterator matri) {
+    void TRI(int size, std::vector<int>::iterator numco, std::vector<double>::iterator matri) {
         // Tri simultané des colonnes et des coefficients
         for (int i = 0; i < size - 1; i++) {
             for (int j = i + 1; j < size; j++) {
@@ -231,14 +232,14 @@ namespace FEMAssembly {
             std::vector<int>& adprcl, 
             std::vector<int>& numcol, 
             std::vector<int>& adsucl, 
-            std::vector<float>& matris, 
-            std::vector<float>& secmbr, 
+            std::vector<double>& matris, 
+            std::vector<double>& secmbr, 
             std::vector<int>& nuddir, 
-            std::vector<float>& valdir, 
+            std::vector<double>& valdir, 
             std::vector<int>& adprc0, 
             std::vector<int>& numco0, 
-            std::vector<float>& matri0, 
-            std::vector<float>& secmb0) {
+            std::vector<double>& matri0, 
+            std::vector<double>& secmb0) {
 
         int admatr, admat0, admat1, admatx;
 
@@ -256,7 +257,7 @@ namespace FEMAssembly {
         }
 
         // Initialisation des adresses
-        admat0 = 1; // Correspond à la première adresse dans A0
+        admat0 = 0; // Correspond à la première adresse dans A0
         admatx = adprcl[0]; // Première adresse dans la partie triangulaire inférieure de A
 
         // Boucle sur les lignes à partir de la seconde
@@ -274,11 +275,11 @@ namespace FEMAssembly {
 
                 // Parcours des éléments de la ligne
                 while (admatr != 0) {
-                    int j = numcol[admatr];
+                    int j = numcol[admatr-1];
                     if (nuddir[j] > 0) {
-                        secmb0[j] -= matris[nblign + admatr] * valdir[i];
+                        secmb0[j] -= matris[nblign + admatr -1] * valdir[i];
                     }
-                    admatr = adsucl[admatr];
+                    admatr = adsucl[admatr -1];
                 }
 
             } else {
@@ -287,17 +288,17 @@ namespace FEMAssembly {
 
                 // Parcours des éléments de la ligne
                 while (admatr != 0) {
-                    int j = numcol[admatr];
+                    int j = numcol[admatr - 1];
                     if (nuddir[j] < 0) {
                         // Cas Dirichlet non homogène : mise à jour du second membre
-                        secmb0[i] -= matris[nblign + admatr] * valdir[j];
+                        secmb0[i] -= matris[nblign + admatr -1] * valdir[j];
                     } else if (nuddir[j] > 0) {
                         // Conserver le coefficient
-                        matri0[nblign + admat0] = matris[nblign + admatr];
-                        numco0[admat0] = j;
+                        matri0[nblign + admat0 - 1] = matris[nblign + admatr - 1];
+                        numco0[admat0 - 1] = j;
                         admat0++;
                     }
-                    admatr = adsucl[admatr];
+                    admatr = adsucl[admatr - 1];
                 }
 
                 // Tri des colonnes de la ligne par ordre croissant
@@ -417,6 +418,114 @@ namespace FEMAssembly {
 
             iad = iadnxt;  // Mise à jour de la position dans le profil
         }
+    }
+
+
+
+    void cdesse(const int *NBLIGN, const int *ADPRCL, const int *NUMCOL,
+                const int *ADSUCL, const float *MATRIS, const float *SECMBR,
+                const int *NUDDIR, const float *VALDIR,
+                int *ADPRC0, int *NUMCO0, float *MATRI0, float *SECMB0) {
+
+        int admatr, admat0, admat1, admatx;
+
+        // Loop to copy elements from SECMBR and MATRIS to SECMB0 and MATRI0
+        for (int i = 0; i < *NBLIGN; ++i) {  
+            SECMB0[i] = SECMBR[i];
+            MATRI0[i] = MATRIS[i];
+        }
+
+        // Processing the first row
+        if (NUDDIR[0] < 0) {
+            SECMB0[0] = MATRI0[0] * VALDIR[0];
+        } else if (NUDDIR[0] <= 0) {
+            SECMB0[0] = 0.0f;
+        }
+
+        // Initializing addresses for the lower triangular part
+        admat0 = 1;
+        admatx = ADPRCL[0];
+
+        // Main loop starting from the 2nd row
+        for (int i = 1; i < *NBLIGN; ++i) {
+
+            admatr = admatx;  // Address of the first coefficient of row i-1
+            admatx = ADPRCL[i];  // Address of the first coefficient of row i
+            ADPRC0[i - 1] = admat0;  // Updating ADPRC0 for the previous row
+            if (NUDDIR[i] <= 0) {
+                // Dirichlet case
+                SECMB0[i] = 0.0f;
+                if (NUDDIR[i] < 0) {
+                    SECMB0[i] = MATRIS[i] * VALDIR[i];
+                }
+
+                while (admatr != 0) {
+                    int j = NUMCOL[admatr - 1];  // Column number
+
+                    if (NUDDIR[j - 1] > 0) {
+                        SECMB0[j - 1] -= MATRIS[*NBLIGN + admatr - 1] * VALDIR[i];
+                    }
+                    admatr = ADSUCL[admatr - 1];  // Address of the next coefficient
+                }
+            } else {
+                // Non-Dirichlet case
+                admat1 = admat0 - 1;
+
+                while (admatr != 0) {
+                    int j = NUMCOL[admatr - 1];
+
+                    if (NUDDIR[j - 1] < 0) {
+                        // Case of a non-homogeneous Dirichlet column
+                        SECMB0[i] -= MATRIS[*NBLIGN + admatr - 1] * VALDIR[j - 1];
+                    } else if (NUDDIR[j - 1] > 0) {
+                        // Non-Dirichlet column case: coefficient is kept
+                        MATRI0[*NBLIGN + admat0 - 1] = MATRIS[*NBLIGN + admatr - 1];
+                        NUMCO0[admat0 - 1] = j;
+                        admat0 += 1;
+                    }
+
+                    admatr = ADSUCL[admatr - 1];  // Address of the next coefficient
+                }
+
+                // Sorting columns of the row in ascending order
+                if (admat0 > admat1) {
+                    // Calling the `tri` function to sort NTAB (NUMCO0) and RTAB (MATRI0)
+                    tri(admat0 - 1 - admat1, NUMCO0 + admat1, MATRI0 + (*NBLIGN + admat1));
+                }
+            }
+        }
+
+        // Final update of ADPRC0 for the last row
+        ADPRC0[*NBLIGN - 1] = admat0;
+    }
+
+    void tri(int N, int *NTAB, float *RTAB) {
+        bool permut;
+        int aux1;
+        float aux2;
+
+        int i = 0;  
+        do {
+            permut = false;
+            i++;
+
+            // Loop to compare and swap elements in NTAB and RTAB
+            for (int j = N - 1; j >= i; --j) {
+                if (NTAB[j] < NTAB[j - 1]) {
+                    // Swap in NTAB
+                    aux1 = NTAB[j - 1];
+                    NTAB[j - 1] = NTAB[j];
+                    NTAB[j] = aux1;
+
+                    // Swap in RTAB
+                    aux2 = RTAB[j - 1];
+                    RTAB[j - 1] = RTAB[j];
+                    RTAB[j] = aux2;
+
+                    permut = true;
+                }
+            }
+        } while (permut);  // Repeat until no more swaps
     }
 
 

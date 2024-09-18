@@ -17,6 +17,7 @@
 #include <Eigen/Dense>
 #include <vector>
 
+#include "FEMAssembly.hpp"
 #include "Mesh.hpp"
 #include "Node.hpp"
 #include "FEMParameters.hpp"
@@ -35,8 +36,20 @@ void dSMDaSMO(int NbLign, int AdPrCoefLi[], int NumCol[], int AdSuccLi[], float 
             float SecMembre[], int NumDLDir[], float ValDLDir[], int NumColO[], float MatriceO[]){
     
     
-    cdesse_(&NbLign, AdPrCoefLi, NumCol, AdSuccLi, Matrice,SecMembre, NumDLDir, ValDLDir, AdPrCoefLi, NumColO, MatriceO, SecMembre);
+    // cdesse_(&NbLign, AdPrCoefLi, NumCol, AdSuccLi, Matrice,SecMembre, NumDLDir, ValDLDir, AdPrCoefLi, NumColO, MatriceO, SecMembre);
+
+    FEMAssembly::cdesse(&NbLign, AdPrCoefLi, NumCol, AdSuccLi, Matrice,SecMembre, NumDLDir, ValDLDir, AdPrCoefLi, NumColO, MatriceO, SecMembre);
     
+    
+}
+
+void dSMDaSMOVector(int& NbLign, std::vector<int>& AdPrCoefLi, std::vector<int>& NumCol, std::vector<int>& AdSuccLi, std::vector<double>& Matrice, 
+            std::vector<double>& SecMembre, std::vector<int>& NumDLDir, std::vector<double>& ValDLDir, std::vector<int>& NumColO, std::vector<double>& MatriceO){
+    
+    
+    // cdesse_(&NbLign, AdPrCoefLi, NumCol, AdSuccLi, Matrice,SecMembre, NumDLDir, ValDLDir, AdPrCoefLi, NumColO, MatriceO, SecMembre);
+    
+    FEMAssembly::CDESSE(NbLign, AdPrCoefLi, NumCol, AdSuccLi, Matrice, SecMembre, NumDLDir, ValDLDir, AdPrCoefLi, NumColO, MatriceO, SecMembre);
     
 }
 
@@ -115,9 +128,9 @@ int* vectorToArray(std::vector<int>& vec) {
 
 int main(int argc, char *argv[]){
 
-    std::string defaultParam = "parameters.txt";
+    std::string defaultParam = "/Users/djo/Dev/OxyFEM/parameters.txt";
     std::string defaultSaveFile = "/Users/djo/Dev/OxyFEM/results/simu1.txt";
-    std::string defaultMeshPath = "/Users/djo/Desktop/MEF/C++/Meshs/";
+    std::string defaultMeshPath = "/Users/djo/Dev/OxyFEM/Meshs/";
 
     std::string firstArgument;
     std::string secondArgument;
@@ -146,15 +159,8 @@ int main(int argc, char *argv[]){
     FEMParameters parameters(firstArgument);
     Mesh mesh;
 
-    cout << endl << "-------- Reading the mesh -------" << endl;
     bool meshOk = mesh.loadMsh(thirdArgument + parameters.getMeshName());
-    if(!meshOk){
-        std::cerr << "Problem reading the mesh " << endl;
-    } else {
-        cout << "The mesh file " << parameters.getMeshName() << " has been correctly read." << endl;
-    }
-    cout << "---------------------------------" << endl;
-    // mesh.printMesh();
+    
 
     Solver solver(mesh, parameters);
 
@@ -177,17 +183,21 @@ int main(int argc, char *argv[]){
     std::vector<int>& dNumDLDir = solver.getNumDLDir();
     std::vector<double>& dValDLDir = solver.getValDLDir();
 
+    float* MatriceO = new float[nbLign+nbCoeff];
+    int* NumColO = new int[nbCoeff];
+
     int* AdPrCoefLi = vectorToArray(dAdPrCoefLi);
     int* NumCol = vectorToArray(dNumCol);
     int* AdSuccLi = vectorToArray(dAdSuccLi);
     int* NumDLDir = vectorToArray(dNumDLDir);
     float* ValDLDir = vectorToArray(dValDLDir);
-
-
-    float* MatriceO = new float[nbLign+nbCoeff];
-    int* NumColO = new int[nbCoeff];
     
+    std::vector<double> dMatriceO(nbCoeff+nbLign, 0.0);
+    std::vector<int> dNumColO(nbCoeff, 0.0);
+
     dSMDaSMO(nbLign, AdPrCoefLi, NumCol, AdSuccLi, A, b, NumDLDir, ValDLDir, NumColO, MatriceO);
+    // dSMDaSMOVector(nbLign, dAdPrCoefLi, dNumCol, dAdSuccLi, Ad, bd, dNumDLDir, dValDLDir, dNumColO, dMatriceO);
+
 
     float *MatProf;
     
