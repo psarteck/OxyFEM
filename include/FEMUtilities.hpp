@@ -34,6 +34,8 @@ namespace FEMUtilities {
 
     // std::vector<double> node2double(std::vector<Node> vec);
 
+    void showProgress(float percentage);
+
 }
 
 

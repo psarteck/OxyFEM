@@ -182,16 +182,16 @@
 
 
     bool Mesh::loadMsh(const std::string& fileName){
+        std::cout << endl << "-------- Reading the mesh -------" << std::endl;
         int nbVertices;
         int nbEdges;
         int nbTriangles;
 
-        // Ouvrir le fichier en lecture
         std::ifstream file(fileName);
 
-        // Vérifier si le fichier est ouvert correctement
         if (!file.is_open()) {
             std::cerr << "Error : impossible to open the file : "<< fileName << std::endl;
+            std::cerr << "Problem reading the mesh " << endl;
             return 1;
         }
 
@@ -217,6 +217,9 @@
             std::vector<Node> nodeList = {getNodeAt(id1-1), getNodeAt(id2-1)};
             edges.push_back(Edge(nodeList, label));
         }
+        cout << "The mesh file " << fileName << " has been correctly read." << endl;
+
+        std::cout << "---------------------------------" << std::endl;
         return true;
 
     }

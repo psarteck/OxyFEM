@@ -52,7 +52,6 @@ endif()
 
 
 include_directories(include)
-include(Dart)
 
 add_executable(exeFEM ${SOURCES} ${PROBLEM_FILE} main.cpp)
 

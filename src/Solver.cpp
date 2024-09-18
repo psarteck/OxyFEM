@@ -81,10 +81,18 @@ Solver::Solver(Mesh& mesh_, FEMParameters parameters_) :
 
 void Solver::assemble(){
     
-    cout << "\nAssembling the matrix : ..." << endl;
+    std::cout << endl << "--- Assembling the matrix : -----" << std::endl;
 
 //Integrate on the elements
+    int nbElements = elementList.size();
+    float current = 1.0;
+
+    std::cout << std::endl << "Integrate on the elements ... " << std::endl;
+
     for(auto element : elementList){
+        float percentage = current / nbElements;
+        FEMUtilities::showProgress(percentage);
+        current += 1.0;
         int I, J;
         const std::vector<int>& nodesIds = element.getNodeIDs();
         int nodePerElement = element.getNodeNumber();
@@ -101,12 +109,12 @@ void Solver::assemble(){
 
             for(int j = 0 ; j <= i ; j++){
                 J = nodesIds[j];
-
+#if FORTRAN == 1
                 int* tabAdPrCoefLi = vectorToArray(AdPrCoefLi);
                 int* tabNumCol = vectorToArray(NumCol);
                 int* tabAdSuccLi = vectorToArray(AdSuccLi);
                 float* tabA = vectorToArray(A, NbLine);
-
+#endif
                 float value = MatElem[i][j];
 
                 if(I > J){
@@ -145,10 +153,18 @@ void Solver::assemble(){
 
         }
     }
-
+    
     AdPrCoefLi[NbLine-1] = NextAd;
+    std::cout << std::endl << std::endl << "Integrate on the edges ... " << std::endl;
+
+    nbElements = edgeList.size();
+    current = 1.0;
 
     for(auto edge : edgeList){
+        float percentage = current / nbElements;
+        FEMUtilities::showProgress(percentage);
+        current += 1.0;
+
         int nodeNumberAret = edge.getNodeNumber();
         const std::vector<int>& nodesIds = edge.getNodeIDs();
 
@@ -231,6 +247,9 @@ void Solver::assemble(){
         }
 
     }
+
+    std::cout << std::endl << std::endl << "Assembling done." << std::endl;
+    std::cout << "---------------------------------" << std::endl << std::endl;
 
 }
 

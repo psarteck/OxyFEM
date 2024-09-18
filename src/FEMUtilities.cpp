@@ -111,6 +111,20 @@ namespace FEMUtilities {
         }
     }
 
+    void showProgress(float percentage) {
+        int width = 50;
+        int pos = width * percentage;
+        
+
+        std::cout << "\033[32m" << "[";
+        for (int i = 0; i < width; ++i) {
+            if (i < pos) std::cout << "=";
+            else std::cout << " ";
+        }
+        std::cout << "] " << int(percentage * 100) << " %\r" << "\033[0m";
+        std::cout.flush();
+    }
+
     
     template void printMat<int>(std::vector<std::vector<int> > mat, std::string name);
     template void printMat<double>(std::vector<std::vector<double> > mat, std::string name);
