@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(FEM LANGUAGES CXX Fortran)
+project(FEM LANGUAGES CXX)
 
 # set(CMAKE_BUILD_TYPE Debug)
 
@@ -29,16 +29,6 @@ set(SOURCES
     src/FEMIntegrale.cpp
     src/FEMAssembly.cpp
     src/System.cpp
-    fortran/affsmd.f
-    fortran/affsmo.f
-    fortran/affsol.f
-    fortran/assmat.f
-    fortran/cdesse.f
-    fortran/impmpr.f
-    fortran/ltlpr.f
-    fortran/rsprl.f
-    fortran/rspru.f
-    fortran/tri.f
 )
 
 
