@@ -28,12 +28,10 @@
 #include "FEMParameters.hpp"
 #include "Solver.hpp"
 
-#include "forfun.h"
-
 using namespace std;
 
-void fromNOSStoOSS(int& NbLign, std::vector<int>& AdPrCoefLi, std::vector<int>& NumCol, std::vector<int>& AdSuccLi, std::vector<double>& Matrice, 
-            std::vector<double>& SecMembre, std::vector<int>& NumDLDir, std::vector<double>& ValDLDir, std::vector<int>& NumColO, std::vector<double>& MatriceO){
+void fromNOSStoOSS(int& NbLign, VectorInt& AdPrCoefLi, VectorInt& NumCol, VectorInt& AdSuccLi, VectorReal& Matrice, 
+            VectorReal& SecMembre, VectorInt& NumDLDir, VectorReal& ValDLDir, VectorInt& NumColO, VectorReal& MatriceO){
         
     std::cout << "-- Non-Ordered Sparse Storage to Ordered Sparse Storage... -- " << std::endl << std::endl;
 
@@ -41,8 +39,8 @@ void fromNOSStoOSS(int& NbLign, std::vector<int>& AdPrCoefLi, std::vector<int>& 
     
 }
 
-void fromOSStoPR(const int NbLign, int& NbCoeff, std::vector<int>& AdPrCoefLiO, std::vector<double>& MatriceO, std::vector<int>& NumColO, 
-            std::vector<double>& MatProf, std::vector<int>& Profil){
+void fromOSStoPR(const int NbLign, int& NbCoeff, VectorInt& AdPrCoefLiO, VectorReal& MatriceO, VectorInt& NumColO, 
+            VectorReal& MatProf, VectorInt& Profil){
 
     std::cout << "-- Ordered Sparse Storage to Profil Storage... -- " << std::endl << std::endl;
 
@@ -74,16 +72,16 @@ void fromOSStoPR(const int NbLign, int& NbCoeff, std::vector<int>& AdPrCoefLiO, 
     
 }
 
-void decompLU(int NbLign, int NbCoeff, std::vector<double>& MatProf, std::vector<int>& Profil, std::vector<double>& U, std::vector<double>& SecMembre){
+void decompLU(int NbLign, int NbCoeff, VectorReal& MatProf, VectorInt& Profil, VectorReal& U, VectorReal& SecMembre){
     
     std::cout << "-- LU Decomposition and resolution... -- " << std::endl << std::endl;
 
-    std::vector<double> ld(NbLign, 0.0);
-    std::vector<double> ll(NbCoeff, 0.0);
+    VectorReal ld(NbLign, 0.0);
+    VectorReal ll(NbCoeff, 0.0);
     
-    double eps = 0.0001;
+    Real eps = 0.0001;
 
-    std::vector<double> Y(NbLign, 0.0);
+    VectorReal Y(NbLign, 0.0);
 
     FEMAssembly::ltlpr(NbLign, Profil, MatProf.begin(), MatProf.begin() + NbLign, eps, ld, ll);
 
@@ -134,22 +132,22 @@ int main(int argc, char *argv[]){
 
     solver.assemble();
 
-    std::vector<double>& A = solver.getA();
-    std::vector<double>& b = solver.getb();
+    VectorReal& A = solver.getA();
+    VectorReal& b = solver.getb();
 
     int nbLign = solver.getNbLign();
     int nbCoeff = solver.getNbCoeff();
 
 
-    std::vector<int>& AdPrCoefLi = solver.getAdPrCoefLi();
-    std::vector<int>& NumCol = solver.getNumCol();
+    VectorInt& AdPrCoefLi = solver.getAdPrCoefLi();
+    VectorInt& NumCol = solver.getNumCol();
     
-    std::vector<int>& AdSuccLi = solver.getAdSuccLi();
-    std::vector<int>& NumDLDir = solver.getNumDLDir();
-    std::vector<double>& ValDLDir = solver.getValDLDir();
+    VectorInt& AdSuccLi = solver.getAdSuccLi();
+    VectorInt& NumDLDir = solver.getNumDLDir();
+    VectorReal& ValDLDir = solver.getValDLDir();
     
-    std::vector<double> MatriceO(nbCoeff+nbLign, 0.0);
-    std::vector<int> NumColO(nbCoeff, 0);
+    VectorReal MatriceO(nbCoeff+nbLign, 0.0);
+    VectorInt NumColO(nbCoeff, 0);
 
 
     fromNOSStoOSS(nbLign, AdPrCoefLi, NumCol, AdSuccLi, A, b, NumDLDir, ValDLDir, NumColO, MatriceO);
@@ -169,8 +167,8 @@ int main(int argc, char *argv[]){
     ValDLDir.clear();
     ValDLDir.shrink_to_fit();
 
-    std::vector<double> MatProf;
-    std::vector<int> Profil(nbLign, 0);
+    VectorReal MatProf;
+    VectorInt Profil(nbLign, 0);
 
     fromOSStoPR(nbLign, nbCoeff, AdPrCoefLi, MatriceO, NumColO, MatProf, Profil);
 
@@ -180,7 +178,7 @@ int main(int argc, char *argv[]){
     NumColO.clear();
     NumColO.shrink_to_fit();
 
-    std::vector<double> U(nbLign, 0.0);
+    VectorReal U(nbLign, 0.0);
 
     decompLU(nbLign, nbCoeff, MatProf, Profil, U, b);
 

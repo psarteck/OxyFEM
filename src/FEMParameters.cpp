@@ -94,7 +94,7 @@
         return true;
     }
 
-    void FEMParameters::printLabel(const std::vector<std::string> labels){
+    void FEMParameters::printLabel(const VectorStr labels){
             for(auto label : labels){
                 cout << label << " ";
             }
@@ -112,19 +112,19 @@
         return quadrature;
     }
 
-    const std::vector<std::string>& FEMParameters::getDirichletLabels() const {
+    const VectorStr& FEMParameters::getDirichletLabels() const {
         return dirichletLabels;
     }
 
-    const std::vector<std::string>& FEMParameters::getHomogeneousDirichletLabels() const {
+    const VectorStr& FEMParameters::getHomogeneousDirichletLabels() const {
         return homogeneousDirichletLabels;
     }
 
-    const std::vector<std::string>& FEMParameters::getNeumannLabels() const {
+    const VectorStr& FEMParameters::getNeumannLabels() const {
         return neumannLabels;
     }
 
-    const std::vector<std::string>& FEMParameters::getDomainLabels() const {
+    const VectorStr& FEMParameters::getDomainLabels() const {
         return domainLabels;
     }
 

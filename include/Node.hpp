@@ -14,12 +14,13 @@
 
 #include <vector>
 
+#include "Types.hpp"
 
 
 // template <class T>
     class Node{
         private : 
-            double x, y, z;
+            Real x, y, z;
             const int id;
         public :
             /**
@@ -29,24 +30,24 @@
             * @param z Coordonnée z du nœud.
             * @param id Identifiant unique du nœud.
             */
-            Node(double x_, double y_, double z_, int id_);
-            Node(double x_, double y_, double z_);
-            Node(double x_, double y_);
-            Node(double x_);
+            Node(Real x_, Real y_, Real z_, int id_);
+            Node(Real x_, Real y_, Real z_);
+            Node(Real x_, Real y_);
+            Node(Real x_);
 
 
             bool operator==(const Node& other) const;
-            double operator[](int index) const;
+            Real operator[](int index) const;
 
-            double getX() const;
-            double getY() const;
-            double getZ() const;
+            Real getX() const;
+            Real getY() const;
+            Real getZ() const;
             int getId() const;
 
         
-            void setX(double x_);
-            void setY(double y_);
-            void setZ(double z_);
+            void setX(Real x_);
+            void setY(Real y_);
+            void setZ(Real z_);
 
             void print();
     };

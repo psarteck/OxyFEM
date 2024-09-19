@@ -10,8 +10,8 @@
  * Copyright (C) 2024 by Matthieu PETIT
 \*---------------------------------------------------------------------------*/
 
-#ifndef MESH_C
-#define MESH_C
+#ifndef MESH_H
+#define MESH_H
 
 
 #include <fstream>
@@ -24,14 +24,8 @@
 #include "Node.hpp"
 #include "Element.hpp"
 
+#include "Types.hpp"
 
-
-    // using MatrixD = std::vector<std::vector<double> >;
-    // using VectorD = std::vector<double> ;
-    // using VectorI = std::vector<double> ;
-    // using VectorNo = std::vector<Node> ;
-    // using VectorEd = std::vector<Edge> ;
-    // using VectorEl = std::vector<Element> ;
 
     class Mesh {
 

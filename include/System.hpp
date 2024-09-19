@@ -14,21 +14,24 @@
 
 #include <vector>
 #include <memory>
+
+#include "Types.hpp"
+
 class System {
 
     public:
 
         // System matrix vector
-        std::unique_ptr<std::vector<double>> matrix; 
-        // std::vector<double>* matrix; 
-        std::unique_ptr<std::vector<double>> secMember;
+        std::unique_ptr<VectorReal> matrix; 
+        // VectorReal* matrix; 
+        std::unique_ptr<VectorReal> secMember;
 
         // SMD
-        std::unique_ptr<std::vector<int>> adPrCoefLi;
-        std::unique_ptr<std::vector<int>> adSuccLi;
-        std::unique_ptr<std::vector<int>> numCol;
-        std::unique_ptr<std::vector<int>> numDLDir;
-        std::unique_ptr<std::vector<double>> valDLDir;
+        std::unique_ptr<VectorInt> adPrCoefLi;
+        std::unique_ptr<VectorInt> adSuccLi;
+        std::unique_ptr<VectorInt> numCol;
+        std::unique_ptr<VectorInt> numDLDir;
+        std::unique_ptr<VectorReal> valDLDir;
 
 
         // Size of the system

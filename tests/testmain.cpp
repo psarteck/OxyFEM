@@ -5,6 +5,8 @@
 #include <cmath>
 #include <unistd.h>
 
+#include "Types.hpp"
+
 std::string GetCurrentWorkingDirectory() {
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) != nullptr) {
@@ -15,7 +17,7 @@ std::string GetCurrentWorkingDirectory() {
 }
 
 
-bool CompareFiles(const std::string& resultFile, const std::string& referenceFile, double tolerance) {
+bool CompareFiles(const std::string& resultFile, const std::string& referenceFile, Real tolerance) {
     
     std::ifstream resultStream(resultFile);
     std::ifstream referenceStream(referenceFile);
@@ -30,8 +32,8 @@ bool CompareFiles(const std::string& resultFile, const std::string& referenceFil
         return false;
     }
 
-    double resultValue;
-    double referenceValue;
+    Real resultValue;
+    Real referenceValue;
     
     while (resultStream >> resultValue && referenceStream >> referenceValue) {
         if ((std::fabs((resultValue - referenceValue) / referenceValue)) > tolerance) {

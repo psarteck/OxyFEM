@@ -26,20 +26,20 @@
 
             std::unique_ptr<System> system;
 
-            std::vector<double> A;
-            std::vector<double> b;
+            VectorReal A;
+            VectorReal b;
 
-            std::vector<std::vector<double> > A2;
-            std::vector<double> b2;
+            MatrixReal A2;
+            VectorReal b2;
 
-            std::vector<double> SecMember;
+            VectorReal SecMember;
 
-            std::vector<int> AdPrCoefLi;
-            std::vector<int> NumDLDir;
-            std::vector<int> AdSuccLi;
-            std::vector<int> NumCol;
+            VectorInt AdPrCoefLi;
+            VectorInt NumDLDir;
+            VectorInt AdSuccLi;
+            VectorInt NumCol;
 
-            std::vector<double> ValDLDir;
+            VectorReal ValDLDir;
             int NextAd;
 
             int ptsNb; 
@@ -64,26 +64,26 @@
 
 
 
-            // void assmat(int I, int J, double X, std::vector<int>& AdPrCoefLi, std::vector<int>& NumCol,
-            //     std::vector<int>& AdSuccLi, std::vector<double>& Matrice, int& NextAd);
+            // void assmat(int I, int J, Real X, VectorInt& AdPrCoefLi, VectorInt& NumCol,
+            //     VectorInt& AdSuccLi, VectorReal& Matrice, int& NextAd);
 
-            void assmat(int I, int J, double X, std::vector<int>& ADPRCL, std::vector<int>& NUMCOL, 
-            std::vector<int>& ADSUCL, std::vector<double>& LMATRI, int& nbLign, int& NEXTAD);
+            void assmat(int I, int J, Real X, VectorInt& ADPRCL, VectorInt& NUMCOL, 
+            VectorInt& ADSUCL, VectorReal& LMATRI, int& nbLign, int& NEXTAD);
 
             void AFFSMD();
 
             void printB();
             void printA();
 
-            std::vector<std::vector<double> >& getA2(){return A2;}
-            std::vector<double>& getA(){return A;}
-            std::vector<double>&  getb(){return b;}
+            MatrixReal& getA2(){return A2;}
+            VectorReal& getA(){return A;}
+            VectorReal&  getb(){return b;}
 
-            std::vector<int>&  getAdPrCoefLi(){return AdPrCoefLi;}
-            std::vector<int>& getNumDLDir(){return NumDLDir;}
-            std::vector<int>& getAdSuccLi(){return AdSuccLi;}
-            std::vector<int>& getNumCol(){return NumCol;}
-            std::vector<double>& getValDLDir(){return ValDLDir;}
+            VectorInt&  getAdPrCoefLi(){return AdPrCoefLi;}
+            VectorInt& getNumDLDir(){return NumDLDir;}
+            VectorInt& getAdSuccLi(){return AdSuccLi;}
+            VectorInt& getNumCol(){return NumCol;}
+            VectorReal& getValDLDir(){return ValDLDir;}
 
 
             int& getNbLign(){return NbLine;}
@@ -91,8 +91,8 @@
 
 
             // (TODO)
-            int* vectorToArray(const std::vector<int>& vec);
-            float* vectorToArray(const std::vector<double>& vec, size_t startIndex);
+            int* vectorToArray(const VectorInt& vec);
+            float* vectorToArray(const VectorReal& vec, size_t startIndex);
     };
 
 #endif

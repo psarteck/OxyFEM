@@ -37,7 +37,7 @@ Edge::Edge(std::vector<Node> nodeList_, int label_) : nodeList(nodeList_), label
 }
 
 
-void Edge::intAret(std::vector<std::vector<double> >& elemMatrix, std::vector<double>& fElem){
+void Edge::intAret(MatrixReal& elemMatrix, VectorReal& fElem){
 
     int d = 1;
     
@@ -49,23 +49,23 @@ void Edge::intAret(std::vector<std::vector<double> >& elemMatrix, std::vector<do
     for(int indicepts = 0 ; indicepts < q ; indicepts ++){
         
         std::vector<Node> pts = quadraMethodS1.getPoints();
-        std::vector<double> pds = quadraMethodS1.getWeights();
+        VectorReal pds = quadraMethodS1.getWeights();
 
-        std::vector<double> baseFct = FEMIntegrale::baseFunctions(pts[indicepts], type);
+        VectorReal baseFct = FEMIntegrale::baseFunctions(pts[indicepts], type);
 
-        std::vector<std::vector<double> > baseDerFct = FEMIntegrale::baseDerFunctions(pts[indicepts], type);
+        MatrixReal baseDerFct = FEMIntegrale::baseDerFunctions(pts[indicepts], type);
         
-        std::vector<std::vector<double> > Jcob = FEMIntegrale::matJacob(nodeList, baseDerFct, type);
+        MatrixReal Jcob = FEMIntegrale::matJacob(nodeList, baseDerFct, type);
         
-        std::vector<double> imagPoint = FEMIntegrale::transFK(nodeList, baseFct);
+        VectorReal imagPoint = FEMIntegrale::transFK(nodeList, baseFct);
 
-        double eltdif = pds[indicepts] * sqrt(Jcob[0][0]*Jcob[0][0] + Jcob[0][1]*Jcob[0][1]);
+        Real eltdif = pds[indicepts] * sqrt(Jcob[0][0]*Jcob[0][0] + Jcob[0][1]*Jcob[0][1]);
         
-        double cofvarWW = FEMProblem::BN(imagPoint);
+        Real cofvarWW = FEMProblem::BN(imagPoint);
         
         FEMIntegrale::WW(nodeList, baseFct, eltdif, cofvarWW, elemMatrix);
         
-        double cofvarW = FEMProblem::FN(imagPoint, label);
+        Real cofvarW = FEMProblem::FN(imagPoint, label);
 
         FEMIntegrale::W(nodeList, baseFct, eltdif, cofvarW, fElem);
         
@@ -104,7 +104,7 @@ int Edge::getNodeNumber(){
     return nodeList.size();
 }
 
-const std::vector<int>& Edge::getNodeIDs() const{
+const VectorInt& Edge::getNodeIDs() const{
     return nodeIdList;
 }
 

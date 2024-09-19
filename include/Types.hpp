@@ -11,25 +11,25 @@
 \*---------------------------------------------------------------------------*/
 // Types.hpp
 
-// #ifndef FEMTYPES
-// #define FEMTYPES
+#ifndef FEM_TYPES_H
+#define FEM_TYPES_H
 
-// #include <vector>
-// #include "Node.hpp"
-// #include "Element.hpp"
-// #include "Edge.hpp" 
+#include <vector>
 
-// using namespace std;
-// class Edge;
-// // Définir un alias pour std::vector<std::vector<double>>
-// using MatrixD = vector<vector<double> >;
-// using VectorD = vector<double>;
-// using VectorI = vector<int>;
-// using VectorNo = vector<Node>;
+#ifdef USE_FLOAT
+    using Real = float;
+#else
+    using Real = double;
+#endif
 
-// // Utiliser directement la classe Edge ici
-// using VectorEd = vector<Edge>;
+using MatrixReal = std::vector<std::vector<Real>>;
+using MatrixInt = std::vector<std::vector<int>>;
+using MatrixStr = std::vector<std::vector<std::string>>;
 
-// #endif
+using VectorReal = std::vector<Real>;
+using VectorInt = std::vector<int>;
+using VectorStr = std::vector<std::string>;
+
+#endif
 
 

@@ -16,30 +16,36 @@ add_subdirectory(external/eigen)
 
 option(USE_TEST_PROBLEM "Use the file FEMProblem_test.cpp instead of FEMProblem.cpp" OFF)
 
+option(USE_FLOAT "Utiliser float au lieu de double" OFF)
+
+
 set(SOURCES
-    src/Node.cpp
-    src/Element.cpp
-    src/Mesh.cpp
-    src/Edge.cpp
-    src/FEMParameters.cpp
-    src/Quadrature.cpp
-    src/FEMUtilities.cpp
-    # src/FEMProblem.cpp
-    src/Solver.cpp
-    src/FEMIntegrale.cpp
-    src/FEMAssembly.cpp
-    src/System.cpp
+src/Node.cpp
+src/Element.cpp
+src/Mesh.cpp
+src/Edge.cpp
+src/FEMParameters.cpp
+src/Quadrature.cpp
+src/FEMUtilities.cpp
+# src/FEMProblem.cpp
+src/Solver.cpp
+src/FEMIntegrale.cpp
+src/FEMAssembly.cpp
+src/System.cpp
 )
 
 
 if(USE_TEST_PROBLEM)
-    message(STATUS "Use of tests/FEMProblem_test.cpp for CI")
-    set(PROBLEM_FILE tests/FEMProblem_test.cpp)
+message(STATUS "Use of tests/FEMProblem_test.cpp for CI")
+set(PROBLEM_FILE tests/FEMProblem_test.cpp)
 else()
-    message(STATUS "Use of src/FEMProblem.cpp")
-    set(PROBLEM_FILE src/FEMProblem.cpp)
+message(STATUS "Use of src/FEMProblem.cpp")
+set(PROBLEM_FILE src/FEMProblem.cpp)
 endif()
 
+if(USE_FLOAT)
+add_compile_definitions(USE_FLOAT)
+endif()
 
 include_directories(include)
 

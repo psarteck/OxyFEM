@@ -27,31 +27,31 @@ F_OMEGA
 // extern int nucas;
 // extern int dom;
 
-double aij(double i, double j){
+Real aij(Real i, Real j){
     return (i == j);
 }
 
-double A11(std::vector<double> x){
+Real A11(VectorReal x){
     return 1;
 }
 
-double A00(std::vector<double> x){
-    return 1;
-}
-
-double A12(std::vector<double> x){
+Real A00(VectorReal x){
     return 0;
 }
 
-double A22(std::vector<double> x){
-    return 1;
-}
-
-double BN(std::vector<double> x){
+Real A12(VectorReal x){
     return 0;
 }
 
-double FOMEGA(std::vector<double> x){
+Real A22(VectorReal x){
+    return 1;
+}
+
+Real BN(VectorReal x){
+    return 0;
+}
+
+Real FOMEGA(VectorReal x){
     // switch(nucas){
     //     case 1:
     //         return 32*(x[0]-x[0]*x[0]+x[1]-x[1]*x[1]);
@@ -68,14 +68,14 @@ double FOMEGA(std::vector<double> x){
     //         break;
     // }
     // return 32*(x[0]*(1-x[0])+x[1]*(1-x[1]));
-    // return 2 * M_PI * M_PI * sin(M_PI * x[0]) * sin(M_PI * x[1]);
-    return (1+2*M_PI*M_PI)*cos(M_PI*x[0])*cos(M_PI*x[1]);
+    return 2 * M_PI * M_PI * sin(M_PI * x[0]) * sin(M_PI * x[1]);
+    // return (1+2*M_PI*M_PI)*cos(M_PI*x[0])*cos(M_PI*x[1]);
 }
 
-double FN(std::vector<double> x_, int numAret){
+Real FN(VectorReal x_, int numAret){
 
-    double x(x_[0]);
-    double y(x_[1]);
+    Real x(x_[0]);
+    Real y(x_[1]);
 
     switch (numAret) {
         case 1:
@@ -94,7 +94,7 @@ double FN(std::vector<double> x_, int numAret){
     // return 10*x[0] - 5*x[1];
 }
 
-double UD(const std::vector<double>& x){
+Real UD(const VectorReal& x){
     
     // switch(nucas){
     //     case 1:
@@ -116,7 +116,7 @@ double UD(const std::vector<double>& x){
     return 0.0;
 }
 
-double UD(const Node& x){
+Real UD(const Node& x){
     return 100 * x.getX() + x.getY();
 }
 

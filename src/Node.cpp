@@ -15,20 +15,20 @@
 
         
 
-    Node::Node(double x_, double y_, double z_, int id_) : x(x_), y(y_), z(z_), id(id_) {}
+    Node::Node(Real x_, Real y_, Real z_, int id_) : x(x_), y(y_), z(z_), id(id_) {}
 
-    Node::Node(double x_, double y_, double z_) : x(x_), y(y_), z(z_), id(-1) {}
+    Node::Node(Real x_, Real y_, Real z_) : x(x_), y(y_), z(z_), id(-1) {}
 
-    Node::Node(double x_, double y_) : x(x_), y(y_), z(0.0), id(-1.0) {}
+    Node::Node(Real x_, Real y_) : x(x_), y(y_), z(0.0), id(-1.0) {}
 
-    Node::Node(double x_) : x(x_), y(0.0), z(0.0), id(-1.0) {}
+    Node::Node(Real x_) : x(x_), y(0.0), z(0.0), id(-1.0) {}
 
 
     bool Node::operator==(const Node& other) const {
         return (x == other.x) && (y == other.y) && (z == other.z) ;
     }
 
-    double Node::operator[](int index) const {
+    Real Node::operator[](int index) const {
         if (index == 0)
             return getX();
         else if (index == 1)
@@ -37,15 +37,15 @@
             throw std::out_of_range("Index out of range");
     }
 
-    double Node::getX() const{
+    Real Node::getX() const{
         return x;
     }
 
-    double Node::getY() const{
+    Real Node::getY() const{
         return y;
     }
 
-    double Node::getZ() const{
+    Real Node::getZ() const{
         return z;
     }
 
@@ -53,15 +53,15 @@
         return id;
     }
 
-    void Node::setX(double x_){
+    void Node::setX(Real x_){
         x = x_;
     }
 
-    void Node::setY(double y_){
+    void Node::setY(Real y_){
         y = y_;
     }
 
-    void Node::setZ(double z_){
+    void Node::setZ(Real z_){
         z = z_;
     }
 
@@ -74,7 +74,7 @@
 
 
     // // Explicit instantiation for types 
-    // template class Node<double>;
+    // template class Node<Real>;
     // template class Node<float>;
 
 

@@ -18,6 +18,7 @@
 #include <iostream>
 #include "Node.hpp"
 #include "FEMProblem.hpp"
+
 #include "Types.hpp"
 
 using namespace std;
@@ -28,23 +29,23 @@ namespace FEMIntegrale {
 
     int returnQ(std::string type);
 
-    std::vector<double> baseFunctions(const Node& pts, const std::string type, const int number = 0);
+    VectorReal baseFunctions(const Node& pts, const std::string type, const int number = 0);
 
-    std::vector<std::vector<double> > baseDerFunctions(const Node& pts, const std::string type, const int number = 0);
+    MatrixReal baseDerFunctions(const Node& pts, const std::string type, const int number = 0);
 
-    std::vector<std::vector<double> > matJacob(const std::vector<Node> selectNodes, const std::vector<std::vector<double> > valDerBase, const std::string type);
+    MatrixReal matJacob(const std::vector<Node> selectNodes, const MatrixReal valDerBase, const std::string type);
 
-    std::vector<double> transFK(const std::vector<Node> selectNodes, const std::vector<double> valBase);
+    VectorReal transFK(const std::vector<Node> selectNodes, const VectorReal valBase);
 
-    void ADWDW(const std::vector<Node> nodes, const std::vector<std::vector<double> > valDerBase, double diffElement, std::vector<double> point, std::vector<std::vector<double> > cofvar, std::vector<std::vector<double> > matInv, std::vector<std::vector<double> >& elemMatrix);
+    void ADWDW(const std::vector<Node> nodes, const MatrixReal valDerBase, Real diffElement, VectorReal point, MatrixReal cofvar, MatrixReal matInv, MatrixReal& elemMatrix);
 
-    void WW(const std::vector<Node> nodes, const std::vector<double> valBase, const double diffElement, const double cofvar, std::vector<std::vector<double> >& elemMatrix);
+    void WW(const std::vector<Node> nodes, const VectorReal valBase, const Real diffElement, const Real cofvar, MatrixReal& elemMatrix);
 
-    void W(const std::vector<Node> nodes, const std::vector<double> valBase, const double diffElement, const double cofvar, std::vector<double>& fElem);
+    void W(const std::vector<Node> nodes, const VectorReal valBase, const Real diffElement, const Real cofvar, VectorReal& fElem);
 
-    std::vector<std::vector<double> > invert2x2(std::vector<std::vector<double> >& mat, double& det);
+    MatrixReal invert2x2(MatrixReal& mat, Real& det);
 
-    double prodScal(std::vector<std::vector<double> > Mat1, std::vector<std::vector<double> > Mat2, int indiceAB, int indiceIJ);
+    Real prodScal(MatrixReal Mat1, MatrixReal Mat2, int indiceAB, int indiceIJ);
 
 }
 

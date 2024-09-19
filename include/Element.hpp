@@ -22,36 +22,31 @@
 #include "Quadrature.hpp"
 #include "FEMUtilities.hpp"
 #include "FEMIntegrale.hpp"
-// #include "Types.hpp"
+
+#include "Types.hpp"
 
     class Edge;
 
     class Element {
 
-        // using MatrixD = std::vector<std::vector<double> >;
-        // using VectorD = std::vector<double>;
-        // using VectorI = std::vector<int>;
-        // using VectorNo = std::vector<Node>;
-        // using VectorEd = std::vector<Edge>;
-
         private : 
             const int id;   
             const int number; // Number of the element in the mesh
-            const std::vector<int> nodeIds;
+            const VectorInt nodeIds;
             std::vector<Edge> edges;
             std::vector<Node> nodes;
-            std::vector<double> valBase;
-            std::vector<std::vector<double> > valDerBase;
+            VectorReal valBase;
+            MatrixReal valDerBase;
             // MatrixD elemMatrix;
-            // std::vector<double> fElem;
+            // VectorReal fElem;
 
             Quadrature quadraMethodS1;
             // Quadrature quadraMethodT1;
             // Quadrature quadraMethodQ1;
 
 
-            std::vector<int> NuDElem;
-            std::vector<double> uDElem;
+            VectorInt NuDElem;
+            VectorReal uDElem;
 
             int nodeNb;
             std::string type;
@@ -59,21 +54,21 @@
             int dimension;
 
         public :
-            // Element(int id_, const std::vector<int>& nodeIds_);
+            // Element(int id_, const VectorInt& nodeIds_);
 
-            Element(int id_, std::vector<int>& nodeIds, std::vector<Node> & nodes_, int number = 0);
+            Element(int id_, VectorInt& nodeIds, std::vector<Node> & nodes_, int number = 0);
 
-            Element(int id_, std::vector<int>& nodeIds, std::vector<Node> & nodes_, std::vector<Edge> & edges_);
+            Element(int id_, VectorInt& nodeIds, std::vector<Node> & nodes_, std::vector<Edge> & edges_);
 
             
-            void intElem(std::vector<std::vector<double> >& elemMatrix, std::vector<double>& fElem);
+            void intElem(MatrixReal& elemMatrix, VectorReal& fElem);
 
 
-            void cal1Elem(std::vector<double>& fElem, std::vector<std::vector<double>>& elemMatrix);
+            void cal1Elem(VectorReal& fElem, MatrixReal& elemMatrix);
 
 
-            void impCalEl(int K, int typEl, int nbneel, std::vector<std::vector<double> > MatElem, std::vector<double> SMbrElem,
-                std::vector<int> NuDElem, std::vector<double> uDElem);
+            void impCalEl(int K, int typEl, int nbneel, MatrixReal MatElem, VectorReal SMbrElem,
+                VectorInt NuDElem, VectorReal uDElem);
 
             
 
@@ -86,32 +81,32 @@
 
             const std::vector<Node>& getNodes()const ;
 
-            const std::vector<int>& getNodeIDs() const;
+            const VectorInt& getNodeIDs() const;
 
             Node getNodeById(int nodeId) const;
 
             int getNodeNumber();
 
             int getNuDElem(int i);
-            double getuDElem(int i);
+            Real getuDElem(int i);
             void setNuDElem(int i, int val);
-            void setuDElem(int i, double val);
+            void setuDElem(int i, Real val);
 
 
     };
 
 #endif
 
-// void cal1Elem(std::vector<std::vector<double> >& MatElem, std::vector<double>& SMbrElem,
-//               std::vector<int>& NuDElem, std::vector<double>& uDElem);
+// void cal1Elem(MatrixReal& MatElem, VectorReal& SMbrElem,
+//               VectorInt& NuDElem, VectorReal& uDElem);
 // void baseFunctions(const Node& pts);
 // void baseDerFunctions(const Node& pts);
-// std::vector<double> transFK(std::vector<Node> selectNodes);
-// std::vector<std::vector<double> > matJacob(std::vector<Node> selectNodes);
-// std::vector<std::vector<double> > invert2x2(std::vector<std::vector<double> >& mat, double& det);
-// void ADWDW(double diffElement, std::vector<double> point, std::vector<std::vector<double> > cofvar, std::vector<std::vector<double> > matInv, std::vector<std::vector<double> >& elemMatrix);
-// void WW(double diffElement, double cofvar, std::vector<std::vector<double> >& elemMatrix);
-// void W(double diffElement, double cofvar, std::vector<double>& fElem);
-// double prodScal(std::vector<std::vector<double> > Mat1, std::vector<std::vector<double> > Mat2, int indiceAB, int indiceIJ);
-// void intAret(std::vector<std::vector<double> >& elemMatrix, std::vector<double>& fElem, std::vector<Node> coordAret);
+// VectorReal transFK(std::vector<Node> selectNodes);
+// MatrixReal matJacob(std::vector<Node> selectNodes);
+// MatrixReal invert2x2(MatrixReal& mat, Real& det);
+// void ADWDW(Real diffElement, VectorReal point, MatrixReal cofvar, MatrixReal matInv, MatrixReal& elemMatrix);
+// void WW(Real diffElement, Real cofvar, MatrixReal& elemMatrix);
+// void W(Real diffElement, Real cofvar, VectorReal& fElem);
+// Real prodScal(MatrixReal Mat1, MatrixReal Mat2, int indiceAB, int indiceIJ);
+// void intAret(MatrixReal& elemMatrix, VectorReal& fElem, std::vector<Node> coordAret);
 // int returnQ(std::string type);

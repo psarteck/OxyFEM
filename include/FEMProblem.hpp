@@ -9,9 +9,14 @@
  * 
  * Copyright (C) 2024 by Matthieu PETIT
 \*---------------------------------------------------------------------------*/
+#ifndef FEM_PROBLEM
+#define FEM_PROBLEM
+
 #include <iostream>
 #include <vector>
 #include "Node.hpp"
+
+#include "Types.hpp"
 
 namespace FEMProblem {
     /*
@@ -25,24 +30,25 @@ namespace FEMProblem {
     F_OMEGA
     */
 
-    double aij(double i, double j);
+    Real aij(Real i, Real j);
 
-    double A11(std::vector<double> x);
+    Real A11(VectorReal x);
 
-    double A00(std::vector<double> x);
+    Real A00(VectorReal x);
 
-    double A12(std::vector<double> x);
+    Real A12(VectorReal x);
 
-    double A22(std::vector<double> x);
+    Real A22(VectorReal x);
 
-    double BN(std::vector<double> x);
+    Real BN(VectorReal x);
 
-    double FOMEGA(std::vector<double> x);
+    Real FOMEGA(VectorReal x);
 
-    double FN(std::vector<double> x, int numAret);
+    Real FN(VectorReal x, int numAret);
 
-    double UD(const std::vector<double>& x);
-    double UD(const Node& x);
+    Real UD(const VectorReal& x);
+    Real UD(const Node& x);
 
 }
 
+#endif

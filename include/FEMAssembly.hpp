@@ -1,47 +1,61 @@
+/*---------------------------------------------------------------------------*\
+
+ ██████╗ ██╗  ██╗██╗   ██╗     ███████╗███╗   ███╗
+██╔═══██╗╚██╗██╔╝╚██╗ ██╔╝     ██╔════╝████╗ ████║
+██║   ██║ ╚███╔╝  ╚████╔╝█████╗█████╗  ██╔████╔██║
+██║   ██║ ██╔██╗   ╚██╔╝ ╚════╝██╔══╝  ██║╚██╔╝██║
+╚██████╔╝██╔╝ ██╗   ██║        ██║     ██║ ╚═╝ ██║
+ ╚═════╝ ╚═╝  ╚═╝   ╚═╝        ╚═╝     ╚═╝     ╚═╝
+ * 
+ * Copyright (C) 2024 by Matthieu PETIT
+\*---------------------------------------------------------------------------*/
+
 #ifndef FEM_ASSEMBLY_H
 #define FEM_ASSEMBLY_H
 
 
 #include <vector>
 
+#include "Types.hpp"
+
 namespace FEMAssembly {
 
     void ltlpr(int rang, 
-               std::vector<int>& profil, 
-               std::vector<double>::iterator ad, 
-               std::vector<double>::iterator al, 
-               double eps, 
-               std::vector<double>& ld, 
-               std::vector<double>& ll);
+               VectorInt& profil, 
+               VectorReal::iterator ad, 
+               VectorReal::iterator al, 
+               Real eps, 
+               VectorReal& ld, 
+               VectorReal& ll);
 
 
     void rsprl(int rang, 
-           std::vector<int>::iterator profil, 
-           std::vector<double>::iterator d, 
-           std::vector<double>& l, 
-           std::vector<double>::iterator b, 
-           std::vector<double>::iterator x);
+           VectorInt::iterator profil, 
+           VectorReal::iterator d, 
+           VectorReal& l, 
+           VectorReal::iterator b, 
+           VectorReal::iterator x);
 
     void rspru(int rang, 
-               const std::vector<int>& profil, 
-               const std::vector<double>& d, 
-               const std::vector<double>& l, 
-               const std::vector<double>& b, 
-               std::vector<double>& x);
+               const VectorInt& profil, 
+               const VectorReal& d, 
+               const VectorReal& l, 
+               const VectorReal& b, 
+               VectorReal& x);
     
     
-    void cdesse(const int NBLIGN, const std::vector<int>& ADPRCL, 
-                const std::vector<int>& NUMCOL,
-                const std::vector<int>& ADSUCL, const std::vector<double>& MATRIS, 
-                const std::vector<double>& SECMBR,
-                const std::vector<int>& NUDDIR, const std::vector<double>& VALDIR,
-                std::vector<int>& ADPRC0, std::vector<int>& NUMCO0, 
-                std::vector<double>& MATRI0, std::vector<double>& SECMB0);
+    void cdesse(const int NBLIGN, const VectorInt& ADPRCL, 
+                const VectorInt& NUMCOL,
+                const VectorInt& ADSUCL, const VectorReal& MATRIS, 
+                const VectorReal& SECMBR,
+                const VectorInt& NUDDIR, const VectorReal& VALDIR,
+                VectorInt& ADPRC0, VectorInt& NUMCO0, 
+                VectorReal& MATRI0, VectorReal& SECMB0);
 
 
     void sort(int N, 
-              std::vector<int>::iterator NTAB, 
-              std::vector<double>::iterator RTAB);
+              VectorInt::iterator NTAB, 
+              VectorReal::iterator RTAB);
 
 
 }

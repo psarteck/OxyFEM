@@ -74,7 +74,7 @@
     }
 
 
-    std::vector<double> Quadrature::getWeights(){
+    VectorReal Quadrature::getWeights(){
         return weights;
     }
 

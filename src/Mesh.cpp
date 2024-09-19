@@ -63,11 +63,11 @@
         }
     }
 
-    // Function to parse a line into a vector of doubles
-    std::vector<double> parseLine(const std::string& line) {
-        std::vector<double> result;
+    // Function to parse a line into a vector of Reals
+    VectorReal parseLine(const std::string& line) {
+        VectorReal result;
         std::istringstream iss(line);
-        double value;
+        Real value;
         while (iss >> value) {
             result.push_back(value);
         }
@@ -129,7 +129,7 @@
         file >> nbVertices ;
 
         for(int i = 0 ; i < nbVertices ; i++){
-            double x, y, z(0.0), label;
+            Real x, y, z(0.0), label;
             if (dimension == 2){
                 file >> x >> y >> label;
             }
@@ -159,7 +159,7 @@
         for(int i = 0 ; i < nbTriangles ; i++){
             int x, y, z, label;
             file >> x >> y >> z >> label;
-            std::vector<int> nodeIdList = {x,y,z};
+            VectorInt nodeIdList = {x,y,z};
             std::vector<Node> nodeList = {getNodeAt(x-1),getNodeAt(y-1),getNodeAt(z-1)};
 
             // std::vector<Edge> edgeList = {getNodeAt(x-1),getNodeAt(y-1),getNodeAt(z-1)};
@@ -198,7 +198,7 @@
         file >> nbVertices >> nbTriangles >> nbEdges;
 
         for(int i = 0 ; i < nbVertices ; i++){
-            double x,y,label;
+            Real x,y,label;
             file >> x >> y >> label;
             nodes.push_back(Node(x, y, 0.0, i+1));
         }
@@ -207,7 +207,7 @@
             int id1, id2, id3, label;
             file >> id1 >> id2 >> id3 >> label;
             std::vector<Node> nodeList = {getNodeAt(id1-1), getNodeAt(id2-1), getNodeAt(id3-1)};
-            std::vector<int> nodeIdList = {id1,id2,id3};
+            VectorInt nodeIdList = {id1,id2,id3};
             elements.push_back(Element(label, nodeIdList, nodeList, i));
         }
 
@@ -247,7 +247,7 @@
         file >> nbVertices ;
 
         for(int i = 0 ; i < nbVertices ; i++){
-            double x, y, z(0.0), label;
+            Real x, y, z(0.0), label;
             if (dimension == 2){
                 file >> x >> y >> label;
             }
@@ -276,7 +276,7 @@
         for(int i = 0 ; i < nbTriangles ; i++){
             int x, y, z, label;
             file >> x >> y >> z >> label;
-            std::vector<int> nodeIdList = {x,y,z};
+            VectorInt nodeIdList = {x,y,z};
             std::vector<Node> nodeList = {getNodeAt(x-1),getNodeAt(y-1),getNodeAt(z-1)};
 
 
@@ -340,12 +340,12 @@
 
     //         if (token == "v") {
     //             // Lire les coordonnées d'un nœud
-    //             double x, y, z;
+    //             Real x, y, z;
     //             iss >> x >> y >> z;
     //             nodes.push_back(Node(x, y, z, nodes.size() + 1));
     //         } else if (token == "f") {
     //             // Lire les indices de nœuds d'un élément
-    //             std::vector<int> nodeIndices;
+    //             VectorInt nodeIndices;
     //             int index;
     //             while (iss >> index) {
     //                 nodeIndices.push_back(index);

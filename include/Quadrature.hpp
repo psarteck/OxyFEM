@@ -15,6 +15,8 @@
 #include "Node.hpp"
 #include <string>
 
+#include "Types.hpp"
+
 // #include "FEMParameters.hpp"
 
 
@@ -26,7 +28,7 @@
 
         // FEMParameters parameters;
 
-        std::vector<double> weights;
+        VectorReal weights;
         std::vector<Node> points;
     public:
         Quadrature(std::string methodName_, std::string elementType_, int order_);
@@ -37,7 +39,7 @@
 
         void weightsPoints(std::string elementType);
 
-        std::vector<double> getWeights();
+        VectorReal getWeights();
         std::vector<Node> getPoints();
 
     };

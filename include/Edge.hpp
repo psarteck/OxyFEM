@@ -19,6 +19,8 @@
 #include "Quadrature.hpp"
 #include "FEMUtilities.hpp"
 
+#include "Types.hpp"
+
 
 // TO DOOOOO MAKE MORE NODE POSSIBLE THAN 2 !!!!!!!!!
 // AFTER THAT GO TO SOLVER.CPP AND CHANGE THE WAY MATARET IS DEFINE
@@ -31,7 +33,7 @@
 
             std::vector<Node> nodeList;
 
-            std::vector<int> nodeIdList;
+            VectorInt nodeIdList;
             int nbNodePerAret;
 
             Quadrature quadraMethodS1;
@@ -45,7 +47,7 @@
 
             Edge(std::vector<Node> nodeList_, int label_);
 
-            void intAret(std::vector<std::vector<double> >& elemMatrix, std::vector<double>& fElem);
+            void intAret(MatrixReal& elemMatrix, VectorReal& fElem);
 
             // bool isOnEdge(const std::vector<Edge>& edgeList);
             
@@ -62,7 +64,7 @@
 
             int getNodeNumber();
 
-            const std::vector<int>& getNodeIDs() const;
+            const VectorInt& getNodeIDs() const;
 
             std::vector<Node> getNodeList();
 

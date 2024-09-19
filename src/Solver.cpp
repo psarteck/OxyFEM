@@ -15,12 +15,11 @@
 #include <memory>
 #include <thread>
 #include <vector>
-#include "forfun.h"
 
 
 #define FORTRAN 0
 
-float* Solver::vectorToArray(const std::vector<double>& vec, size_t startIndex) {
+float* Solver::vectorToArray(const VectorReal& vec, size_t startIndex) {
     // Allouer un tableau dynamique de la même taille que le vecteur
     float* array = new float[vec.size()];
 
@@ -30,7 +29,7 @@ float* Solver::vectorToArray(const std::vector<double>& vec, size_t startIndex) 
     return array;  // Retourner le pointeur vers le tableau
 }
 
-int* Solver::vectorToArray(const std::vector<int>& vec) {
+int* Solver::vectorToArray(const VectorInt& vec) {
     // Allouer un tableau dynamique de la même taille que le vecteur
     int* array = new int[vec.size()];
 
@@ -55,19 +54,19 @@ Solver::Solver(Mesh& mesh_, FEMParameters parameters_) :
         NbCoeff += i;
     }
 
-    A = std::vector<double>(NbLine + NbCoeff, 0.0);
-    b = std::vector<double>(NbLine, 0.0);
+    A = VectorReal(NbLine + NbCoeff, 0.0);
+    b = VectorReal(NbLine, 0.0);
 
-    A2 = std::vector<std::vector<double> >(NbLine, std::vector<double>(NbLine, 0.0));
-    b2 = std::vector<double>(NbLine, 0.0);
+    A2 = MatrixReal(NbLine, VectorReal(NbLine, 0.0));
+    b2 = VectorReal(NbLine, 0.0);
 
 
-    AdPrCoefLi = std::vector<int>(NbLine, 0);
-    NumDLDir = std::vector<int>(NbLine, 0);
-    ValDLDir = std::vector<double>(NbLine, 0.0);
+    AdPrCoefLi = VectorInt(NbLine, 0);
+    NumDLDir = VectorInt(NbLine, 0);
+    ValDLDir = VectorReal(NbLine, 0.0);
 
-    AdSuccLi = std::vector<int>(NbCoeff, 0);
-    NumCol = std::vector<int>(NbCoeff, -1);
+    AdSuccLi = VectorInt(NbCoeff, 0);
+    NumCol = VectorInt(NbCoeff, -1);
 
     NextAd = 1;
 
@@ -94,11 +93,11 @@ void Solver::assemble(){
         FEMUtilities::showProgress(percentage);
         current += 1.0;
         int I, J;
-        const std::vector<int>& nodesIds = element.getNodeIDs();
+        const VectorInt& nodesIds = element.getNodeIDs();
         int nodePerElement = element.getNodeNumber();
-        std::vector<std::vector<double> > MatElem(nodePerElement, std::vector<double>(nodePerElement, 0.0));
+        MatrixReal MatElem(nodePerElement, VectorReal(nodePerElement, 0.0));
 
-        std::vector<double> SMbrElem(nodePerElement, 0.0);
+        VectorReal SMbrElem(nodePerElement, 0.0);
     
         element.intElem(MatElem, SMbrElem);
 
@@ -166,7 +165,7 @@ void Solver::assemble(){
         current += 1.0;
 
         int nodeNumberAret = edge.getNodeNumber();
-        const std::vector<int>& nodesIds = edge.getNodeIDs();
+        const VectorInt& nodesIds = edge.getNodeIDs();
 
         if(isDir0Edge(edge.getLabel())){
 
@@ -188,8 +187,8 @@ void Solver::assemble(){
             //(TODO) Need to understand how assmat works 
             int nbOfNode = edge.getNodeNumber();
 
-            std::vector<std::vector<double>> matAret(nbOfNode, std::vector<double>(nbOfNode, 0.0));
-            std::vector<double> fAret(nbOfNode, 0.0);
+            MatrixReal matAret(nbOfNode, VectorReal(nbOfNode, 0.0));
+            VectorReal fAret(nbOfNode, 0.0);
 
             edge.intAret(matAret, fAret);
 
@@ -281,8 +280,8 @@ bool Solver::isDirNHEdge(const int labelEdge){
 }
 
 
-void Solver::assmat(int I, int J, double X, std::vector<int>& ADPRCL, std::vector<int>& NUMCOL, 
-            std::vector<int>& ADSUCL, std::vector<double>& LMATRI, int& nbLign, int& NEXTAD) {
+void Solver::assmat(int I, int J, Real X, VectorInt& ADPRCL, VectorInt& NUMCOL, 
+            VectorInt& ADSUCL, VectorReal& LMATRI, int& nbLign, int& NEXTAD) {
 
     
     int IAD, NXT;
@@ -319,8 +318,8 @@ void Solver::assmat(int I, int J, double X, std::vector<int>& ADPRCL, std::vecto
 }
 
 
-// void Solver::assmat(int I, int J, double X, std::vector<int>& AdPrCoefLi, std::vector<int>& NumCol,
-//             std::vector<int>& AdSuccLi, std::vector<double>& Matrice, int& NextAd) {
+// void Solver::assmat(int I, int J, Real X, VectorInt& AdPrCoefLi, VectorInt& NumCol,
+//             VectorInt& AdSuccLi, VectorReal& Matrice, int& NextAd) {
 
 //     if (I <= J) {
 //         // (TODO)

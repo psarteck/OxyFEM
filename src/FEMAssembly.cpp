@@ -21,9 +21,9 @@
 namespace FEMAssembly {
     using namespace std;
 
-    void ltlpr(int rang, std::vector<int>& profil, std::vector<double>::iterator ad, 
-           std::vector<double>::iterator al, double eps, std::vector<double>& ld, 
-           std::vector<double>& ll) {
+    void ltlpr(int rang, VectorInt& profil, VectorReal::iterator ad, 
+           VectorReal::iterator al, Real eps, VectorReal& ld, 
+           VectorReal& ll) {
     
         // Check if the first diagonal element is below the threshold eps
         if (*(ad) < eps) {
@@ -48,7 +48,7 @@ namespace FEMAssembly {
             }
 
             // Compute the rcoef coefficient
-            double rcoef = *(ad + ligne);
+            Real rcoef = *(ad + ligne);
             for (int llad = iad; llad <= iadnxt - 1 ; ++llad) {
                 rcoef -= ll[llad - 1] * ll[llad - 1];
             }
@@ -64,13 +64,13 @@ namespace FEMAssembly {
     }
 
     void rsprl(int rang, 
-           std::vector<int>::iterator profil, 
-           std::vector<double>::iterator d, 
-           std::vector<double>& l, 
-           std::vector<double>::iterator b, 
-           std::vector<double>::iterator x) {
+           VectorInt::iterator profil, 
+           VectorReal::iterator d, 
+           VectorReal& l, 
+           VectorReal::iterator b, 
+           VectorReal::iterator x) {
         
-        const double epsil = 1.0e-10;
+        const Real epsil = 1.0e-10;
 
         // Check the singularity condition for the first diagonal element
         if (std::fabs(*d) < epsil) {
@@ -93,7 +93,7 @@ namespace FEMAssembly {
             }
 
             int col = ligne - nbcoef + 1;
-            double rcoef = 0.0;
+            Real rcoef = 0.0;
 
             // Compute rcoef
             for (int lad = iadnxt - nbcoef; lad <= iadnxt - 1; ++lad) {
@@ -114,8 +114,8 @@ namespace FEMAssembly {
     }
 
 
-    void rspru(int rang, const std::vector<int>& profil, const std::vector<double>& d, 
-           const std::vector<double>& l, const std::vector<double>& b, std::vector<double>& x) {
+    void rspru(int rang, const VectorInt& profil, const VectorReal& d, 
+           const VectorReal& l, const VectorReal& b, VectorReal& x) {
             
         // Epsilon for singularity detection
         const float epsil = 1.e-10;
@@ -159,13 +159,13 @@ namespace FEMAssembly {
         }
     }
 
-    void cdesse(const int NBLIGN, const std::vector<int>& ADPRCL, 
-                      const std::vector<int>& NUMCOL,
-                      const std::vector<int>& ADSUCL, const std::vector<double>& MATRIS, 
-                      const std::vector<double>& SECMBR,
-                      const std::vector<int>& NUDDIR, const std::vector<double>& VALDIR,
-                      std::vector<int>& ADPRC0, std::vector<int>& NUMCO0, 
-                      std::vector<double>& MATRI0, std::vector<double>& SECMB0) {
+    void cdesse(const int NBLIGN, const VectorInt& ADPRCL, 
+                      const VectorInt& NUMCOL,
+                      const VectorInt& ADSUCL, const VectorReal& MATRIS, 
+                      const VectorReal& SECMBR,
+                      const VectorInt& NUDDIR, const VectorReal& VALDIR,
+                      VectorInt& ADPRC0, VectorInt& NUMCO0, 
+                      VectorReal& MATRI0, VectorReal& SECMB0) {
 
         int admatr, admat0, admat1, admatx;
 
@@ -243,10 +243,10 @@ namespace FEMAssembly {
         ADPRC0[NBLIGN - 1] = admat0;
     }
 
-    void sort(int N, std::vector<int>::iterator NTAB, std::vector<double>::iterator RTAB) {
+    void sort(int N, VectorInt::iterator NTAB, VectorReal::iterator RTAB) {
         bool permut;
         int aux1;
-        double aux2;
+        Real aux2;
 
         int i = 0;  
         do {
