@@ -10,8 +10,8 @@
  * Copyright (C) 2024 by Matthieu PETIT
 \*---------------------------------------------------------------------------*/
 #include <iostream>
-#include <iomanip> // Pour gérer la mise en forme des sorties
-#include <limits>  // Pour gérer les erreurs lors de la lecture
+#include <iomanip> 
+#include <limits>  
 #include <cmath>
 #include <algorithm>
 

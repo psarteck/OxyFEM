@@ -416,7 +416,7 @@
             
     //         VectorReal imagPoint = transFK(coordAret);
 
-    //         Real eltdif = pds[indicepts] * sqrt(Jcob[0][0]*Jcob[0][0] + Jcob[0][1]*Jcob[0][1]);
+    //         Real eltdif = pds[indicepts] * std::sqrt(Jcob[0][0]*Jcob[0][0] + Jcob[0][1]*Jcob[0][1]);
             
     //         Real cofvarWW = FEMProblem::BN(imagPoint);
             

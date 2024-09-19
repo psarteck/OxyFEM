@@ -10,6 +10,7 @@
  * Copyright (C) 2024 by Matthieu PETIT
 \*---------------------------------------------------------------------------*/
 #include "Edge.hpp"
+#include <cmath>
 
 // TO DO CHANGE THE TYPE IN THE CONSTRUCTOR
 Edge::Edge(Node& node1_, Node& node2_, int label_) : label(label_), type("S1"){
@@ -59,7 +60,7 @@ void Edge::intAret(MatrixReal& elemMatrix, VectorReal& fElem){
         
         VectorReal imagPoint = FEMIntegrale::transFK(nodeList, baseFct);
 
-        Real eltdif = pds[indicepts] * sqrt(Jcob[0][0]*Jcob[0][0] + Jcob[0][1]*Jcob[0][1]);
+        Real eltdif = pds[indicepts] * std::sqrt(Jcob[0][0]*Jcob[0][0] + Jcob[0][1]*Jcob[0][1]);
         
         Real cofvarWW = FEMProblem::BN(imagPoint);
         

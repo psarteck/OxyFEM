@@ -15,6 +15,7 @@
 #define FEM_TYPES_H
 
 #include <vector>
+#include <string>
 
 #ifdef USE_FLOAT
     using Real = float;
