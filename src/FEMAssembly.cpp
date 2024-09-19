@@ -20,250 +20,142 @@
 
 namespace FEMAssembly {
     using namespace std;
-    void AFFSMD(int nblign, 
-                const std::vector<int>& adprcl, 
-                const std::vector<int>& numcol, 
-                const std::vector<int>& adsucl, 
-                const std::vector<float>& matris, 
-                const std::vector<float>& secmbr, 
-                const std::vector<int>& nuddir, 
-                const std::vector<float>& valdir) {
 
-        int Lmin, Lmax;
-
-        std::cout << "****** Affichage de la S.M.D. ******" << std::endl;
-
-        while (true) {
-            std::cout << "Donner, dans l'intervalle [1, " << nblign << "], les indices min et max des lignes a afficher. Taper q pour arreter." << std::endl;
-
-            // Lecture des indices, on vérifie les erreurs de saisie
-            if (!(std::cin >> Lmin >> Lmax)) {
-                std::cin.clear(); // Effacer l'état d'erreur
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignorer la ligne incorrecte
-                break; // Sortir de la boucle si on tape 'q' ou un caractère non numérique
-            }
-
-            // Ajuster pour correspondre à l'indexation C++
-            Lmin -= 1;
-            Lmax -= 1;
-
-            if (Lmin > Lmax || Lmin < 0 || Lmax >= nblign) {
-                std::cout << "Indices invalides. Réessayez." << std::endl;
-                continue;
-            }
-
-            // Affichage de l'en-tête
-            std::cout << "\n   Ligne    SecMbr   Nuddir   Valdir" << std::endl;
-
-            // Affichage des informations de chaque ligne
-            for (int i = Lmin; i <= Lmax; i++) {
-                std::cout << std::setw(7) << (i+1) << "  " 
-                        << std::setw(10) << std::scientific << secmbr[i] << "  " 
-                        << std::setw(7) << nuddir[i] << "  " 
-                        << std::setw(10) << std::scientific << valdir[i] << std::endl;
-            }
-
-            // Affichage de la matrice
-            std::cout << "=== MATRICE ===========================" << std::endl;
-
-            if (Lmin == 0) {
-                std::cout << "--- Ligne 1 ---" << std::endl;
-                std::cout << "Col  1 : " << std::setw(14) << std::fixed << matris[0] << std::endl;
-                Lmin = 1;
-            }
-
-            for (int i = Lmin; i <= Lmax; i++) {
-                std::cout << "--- Ligne " << (i+1) << " ---" << std::endl;
-                int j = adprcl[i];
-
-                while (j != 0) {
-                    std::cout << "Col " << std::setw(3) << numcol[j] << " : " 
-                            << std::setw(14) << std::fixed << matris[nblign + j] << std::endl;
-                    j = adsucl[j];
-                }
-
-                // Affichage de l'élément diagonal
-                std::cout << "Col " << std::setw(3) << (i+1) << " : " 
-                        << std::setw(14) << std::fixed << matris[i] << std::endl;
-            }
-        }
-    }
-
-
-    void AFFSMO(int nblign, 
-                const std::vector<int>& adprc0, 
-                const std::vector<int>& numco0, 
-                const std::vector<float>& matri0, 
-                const std::vector<float>& secmb0) {
-
-        int kdeb, kfin, iad, iadnxt, j, k;
-
-        std::cout << "NOMBRE DE LIGNES : " << nblign << std::endl;
-
-        while (true) {
-            std::cout << "NUMEROS DE LA PREMIERE ET DE LA DERNIERE LIGNE ?\nTAPER Q POUR TERMINER." << std::endl;
-
-            // Lecture des indices kdeb et kfin avec gestion d'erreur (pour quitter avec 'q')
-            if (!(std::cin >> kdeb >> kfin)) {
-                std::cin.clear(); // Effacer l'état d'erreur
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignorer la ligne incorrecte
-                break; // Sortir de la boucle si on tape 'q'
-            }
-
-            // Ajuster pour correspondre à l'indexation C++
-            kdeb -= 1;
-            kfin -= 1;
-
-            // Vérification des indices
-            if (kdeb < 0 || kfin < kdeb || kfin >= nblign) {
-                std::cout << "Indices invalides. Réessayez." << std::endl;
-                continue;
-            }
-
-            // Affichage du header
-            std::cout << "\n   LIGNE     SECMB0               MATRI0(coefficients + colonnes)" << std::endl;
-
-            iad = 0; // Initialiser IAD à 0 (correspond à l'indice C++)
-
-            // Si kdeb > 0, ajuster l'indice de départ IAD
-            if (kdeb > 0) {
-                iad = adprc0[kdeb - 1];
-            }
-
-            for (k = kdeb; k <= kfin; k++) {
-                iadnxt = adprc0[k];
-
-                // Affichage de la ligne k, le second membre et les coefficients non nuls
-                std::cout << std::setw(5) << (k+1) << "  "  // Affichage de l'indice de ligne
-                        << std::scientific << std::setw(14) << secmb0[k] << " ";
-
-                // Afficher les coefficients de MATRI0
-                for (j = iad; j < iadnxt; j++) {
-                    std::cout << std::setw(14) << matri0[j + nblign];
-                }
-                // Afficher le coefficient diagonal
-                std::cout << std::setw(14) << matri0[k] << std::endl;
-
-                // Affichage des numéros de colonnes correspondants
-                std::cout << std::setw(20);
-                for (j = iad; j < iadnxt; j++) {
-                    std::cout << std::setw(12) << numco0[j];
-                }
-                std::cout << std::setw(12) << (k+1) << std::endl;  // Numéro de colonne pour le coefficient diagonal
-
-                // Mise à jour de l'indice IAD pour la prochaine ligne
-                iad = iadnxt;
-            }
-        }
-    }
-
-
-
-    void ltlpr(int rang, 
-           const std::vector<int>& profil, 
-           std::vector<float>& ad, 
-           std::vector<float>& al, 
-           float eps, 
-           std::vector<float>& ld, 
-           std::vector<float>& ll) {
-
-        int iad, iadnxt, ligne, nbcoef, col, llad;
-        float rcoef;
-
-        // Vérification de la première valeur de la diagonale
-        if (ad[0] < eps) {
-            std::cout << "LA MATRICE A N'EST PAS INVERSIBLE." << std::endl;
-            return;
+    void ltlpr(int rang, std::vector<int>& profil, std::vector<double>::iterator ad, 
+           std::vector<double>::iterator al, double eps, std::vector<double>& ld, 
+           std::vector<double>& ll) {
+    
+        // Check if the first diagonal element is below the threshold eps
+        if (*(ad) < eps) {
+            std::cerr << "THE MATRIX A IS NOT INVERTIBLE." << std::endl;
+            std::exit(EXIT_FAILURE);
         }
 
-        // Calcul du premier élément de la diagonale de L
-        ld[0] = std::sqrt(ad[0]);
+        // Initialize the diagonal of L with the square root of the first diagonal element of A
+        ld[0] = std::sqrt(*ad);
+        int iadnxt = 1;
 
-        iadnxt = 1; // Position initiale dans le profil
-
-        // Boucle sur les lignes de la matrice à partir de la deuxième ligne
-        for (ligne = 1; ligne < rang; ligne++) {
-            iad = iadnxt;
+        // Loop over the rows of the matrix
+        for (int ligne = 1 ; ligne < rang ; ++ligne) {
+            int iad = iadnxt;
             iadnxt = profil[ligne];
-            nbcoef = iadnxt - iad;
+            int nbcoef = iadnxt - iad;
 
-            // Résolution du sous-système si la ligne contient des éléments dans le profil inférieur
+            // Solve the sub-system
             if (nbcoef > 0) {
-                col = ligne - nbcoef;
-                // RSPRL(nbcoef, profil[col], ld[col], ll, al, std::vector<float>(ll.begin() + iad, ll.begin() + iadnxt));
+                int col = ligne - nbcoef;
+                FEMAssembly::rsprl(nbcoef, profil.begin() + col, ld.begin() + col, ll, al + iad - 1, ll.begin() + iad - 1);
             }
 
-            // Calcul du coefficient rcoef à partir de la diagonale et des valeurs du profil
-            rcoef = ad[ligne];
-            for (llad = iad; llad < iadnxt; llad++) {
-                rcoef -= ll[llad] * ll[llad];
+            // Compute the rcoef coefficient
+            double rcoef = *(ad + ligne);
+            for (int llad = iad; llad <= iadnxt - 1 ; ++llad) {
+                rcoef -= ll[llad - 1] * ll[llad - 1];
             }
 
-            // Vérification si la matrice est non inversible
             if (rcoef < eps) {
-                std::cout << "LA MATRICE A N'EST PAS INVERSIBLE." << std::endl;
-                return;
+                std::cerr << "THE MATRIX A IS NOT INVERTIBLE." << std::endl;
+                std::exit(EXIT_FAILURE);
             }
 
-            // Calcul de la diagonale de L pour cette ligne
+            // Update the diagonal of L with the square root of rcoef
             ld[ligne] = std::sqrt(rcoef);
         }
     }
 
-
-
     void rsprl(int rang, 
-           const std::vector<int>& profil, 
-           const std::vector<float>& d, 
-           const std::vector<float>& l, 
-           const std::vector<float>& b, 
-           std::vector<float>& x) {
+           std::vector<int>::iterator profil, 
+           std::vector<double>::iterator d, 
+           std::vector<double>& l, 
+           std::vector<double>::iterator b, 
+           std::vector<double>::iterator x) {
+        
+        const double epsil = 1.0e-10;
 
-        float epsil = 1e-10;
-        int iad, iadnxt, ligne, nbcoef, col, lad;
-        float rcoef;
-
-        // Vérification du premier élément de la diagonale
-        if (std::abs(d[0]) < epsil) {
-            std::cout << "LA MATRICE L N'EST PAS INVERSIBLE." << std::endl;
-            return;
+        // Check the singularity condition for the first diagonal element
+        if (std::fabs(*d) < epsil) {
+            std::cerr << "THE MATRIX L IS NOT INVERTIBLE. 1" << std::endl;
+            std::exit(EXIT_FAILURE);        
         }
 
-        // Calcul de la première solution
-        x[0] = b[0] / d[0];
+        // Compute the first element of the solution
+        *x = *b / *d;
+        int iad = *profil;
 
-        iad = profil[0]; // Position dans le profil pour la première ligne
+        // Loop over the rows of the matrix
+        for (int ligne = 1; ligne < rang; ++ligne) {
+            int iadnxt = *(profil + ligne);
+            int nbcoef = iadnxt - iad;
 
-        // Boucle sur les lignes restantes
-        for (ligne = 1; ligne < rang; ligne++) {
-            iadnxt = profil[ligne]; // Position dans le profil pour la ligne actuelle
-            nbcoef = iadnxt - iad;  // Nombre de coefficients dans le profil inférieur strict
-
-            // Test servant à limiter le nombre de coefficients
-            if (nbcoef >= ligne) {
-                nbcoef = ligne - 1;
+            // Check the number of coefficients
+            if (nbcoef >= ligne + 1) {
+                nbcoef = ligne;
             }
 
-            col = ligne - nbcoef;  // Première colonne associée
+            int col = ligne - nbcoef + 1;
+            double rcoef = 0.0;
 
-            rcoef = 0.0f;
-
-            // Boucle sur les éléments du profil inférieur strict
-            for (lad = iadnxt - nbcoef; lad < iadnxt; lad++) {
-                rcoef += l[lad] * x[col];
-                col++;
+            // Compute rcoef
+            for (int lad = iadnxt - nbcoef; lad <= iadnxt - 1; ++lad) {
+                rcoef += l[lad - 1] * *(x + col - 1);
+                ++col;
             }
 
-            // Vérification de la diagonale pour éviter la division par zéro
+            // Check the singularity condition for d(ligne)
+            if (std::fabs(*(d + ligne)) < epsil) {
+                std::cerr << "THE MATRIX L IS NOT INVERTIBLE." << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
+
+            // Compute the element x(ligne)
+            *(x + ligne) = (*(b + ligne) - rcoef) / *(d + ligne);
+            iad = iadnxt;
+        }
+    }
+
+
+    void rspru(int rang, const std::vector<int>& profil, const std::vector<double>& d, 
+           const std::vector<double>& l, const std::vector<double>& b, std::vector<double>& x) {
+            
+        // Epsilon for singularity detection
+        const float epsil = 1.e-10;
+
+        // Initialize vector x with values from vector b
+        for (int ligne = 0; ligne < rang; ++ligne) {
+            x[ligne] = b[ligne];
+        }
+
+        // Check if the diagonal is singular (last element)
+        if (std::abs(d[rang - 1]) < epsil) {
+            std::cerr << "THE MATRIX L IS NOT INVERTIBLE." << std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+
+        // Divide the last element by the diagonal
+        x[rang - 1] = x[rang - 1] / d[rang - 1];
+
+        // Start the backward substitution in the upper triangular system
+        int iadnxt = profil[rang - 1];
+        for (int ligne = rang - 2; ligne >= 0; --ligne) {
+            int iad = profil[ligne];
+            int xad = ligne;
+            float xconnu = x[ligne + 1];  // Use the already computed element in x
+
+            // Perform row reduction by subtracting products from the lower profile
+            for (int lad = iadnxt - 2; lad >= iad - 1; --lad) {
+                x[xad] -= l[lad] * xconnu;
+                --xad;
+            }
+
+            // Check for singularity in the diagonal
             if (std::abs(d[ligne]) < epsil) {
-                std::cout << "LA MATRICE L N'EST PAS INVERSIBLE." << std::endl;
-                return;
+                std::cerr << "THE MATRIX L IS NOT INVERTIBLE." << std::endl;
+                std::exit(EXIT_FAILURE);
             }
 
-            // Calcul de la solution pour la ligne actuelle
-            x[ligne] = (b[ligne] - rcoef) / d[ligne];
-
-            iad = iadnxt;  // Mise à jour de la position dans le profil
+            // Normalize the diagonal term by dividing
+            x[ligne] = x[ligne] / d[ligne];
+            iadnxt = iad;
         }
     }
 
@@ -340,10 +232,8 @@ namespace FEMAssembly {
 
                 // Sorting columns of the row in ascending order
                 if (admat0 > admat1) {
-                    // Calling the `tri` function to sort NTAB (NUMCO0) and RTAB (MATRI0)
-                    tri(admat0 - 1 - admat1, NUMCO0.begin() + admat1, MATRI0.begin() + (NBLIGN + admat1));
-
-                    // tri(admat0 - 1 - admat1, NUMCO0 + admat1, MATRI0 + (*NBLIGN + admat1));
+                    // Calling the `sort` function to sort NTAB (NUMCO0) and RTAB (MATRI0)
+                    sort(admat0 - 1 - admat1, NUMCO0.begin() + admat1, MATRI0.begin() + (NBLIGN + admat1));
 
                 }
             }
@@ -353,7 +243,7 @@ namespace FEMAssembly {
         ADPRC0[NBLIGN - 1] = admat0;
     }
 
-    void tri(int N, std::vector<int>::iterator NTAB, std::vector<double>::iterator RTAB) {
+    void sort(int N, std::vector<int>::iterator NTAB, std::vector<double>::iterator RTAB) {
         bool permut;
         int aux1;
         double aux2;

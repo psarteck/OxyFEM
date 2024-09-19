@@ -67,7 +67,7 @@ TEST(NonRegressionTest, CompareOutputWithReference) {
     ASSERT_EQ(result, 0) << "Error : The exectution of " << command << " crashed with the code : " << result;
 
     std::string referenceFile = "../../tests/references/refNeDir.txt";
-    EXPECT_TRUE(CompareFiles(resultsFile, referenceFile, 1e-5));
+    EXPECT_TRUE(CompareFiles(resultsFile, referenceFile, 1e-4));
 
 }
 

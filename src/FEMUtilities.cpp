@@ -104,7 +104,7 @@ namespace FEMUtilities {
             }
 
             file.close();
-            std::cout << "Vector has been saved inside : " << filename << std::endl;
+            std::cout << "Vector has been saved inside : " << filename << std::endl << std::endl;
         } else {
             std::cerr << "Erreur : Impossible d'ouvrir le fichier " << filename << std::endl;
             abort();
