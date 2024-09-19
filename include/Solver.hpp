@@ -18,6 +18,7 @@
 #include "FEMParameters.hpp"
 #include "Types.hpp"
 #include "System.hpp"
+#include "FEMAssembly.hpp"
 
 
     class Solver {
@@ -29,17 +30,21 @@
             VectorReal A;
             VectorReal b;
 
-            MatrixReal A2;
-            VectorReal b2;
-
-            VectorReal SecMember;
-
             VectorInt AdPrCoefLi;
-            VectorInt NumDLDir;
             VectorInt AdSuccLi;
+            VectorInt NumDLDir;
+            VectorReal ValDLDir;
             VectorInt NumCol;
 
-            VectorReal ValDLDir;
+            VectorReal MatriceO;
+            VectorInt NumColO;
+
+            VectorReal MatProf;
+            VectorInt Profil;
+
+            VectorReal U;
+
+
             int NextAd;
 
             int ptsNb; 
@@ -56,6 +61,13 @@
 
             void assemble();
 
+            void fromNOSStoOSS();
+
+            void fromOSStoPR(); 
+
+            void decompLU();
+
+
             bool isNeumannEdge(const int labelEdge);
             
             bool isDir0Edge(const int labelEdge);
@@ -64,35 +76,17 @@
 
 
 
-            // void assmat(int I, int J, Real X, VectorInt& AdPrCoefLi, VectorInt& NumCol,
-            //     VectorInt& AdSuccLi, VectorReal& Matrice, int& NextAd);
-
             void assmat(int I, int J, Real X, VectorInt& ADPRCL, VectorInt& NUMCOL, 
             VectorInt& ADSUCL, VectorReal& LMATRI, int& nbLign, int& NEXTAD);
 
-            void AFFSMD();
 
             void printB();
             void printA();
+            void printU();
 
-            MatrixReal& getA2(){return A2;}
-            VectorReal& getA(){return A;}
-            VectorReal&  getb(){return b;}
-
-            VectorInt&  getAdPrCoefLi(){return AdPrCoefLi;}
-            VectorInt& getNumDLDir(){return NumDLDir;}
-            VectorInt& getAdSuccLi(){return AdSuccLi;}
-            VectorInt& getNumCol(){return NumCol;}
-            VectorReal& getValDLDir(){return ValDLDir;}
+            VectorReal& getU(){return U;}
 
 
-            int& getNbLign(){return NbLine;}
-            int& getNbCoeff(){return NbCoeff;}
-
-
-            // (TODO)
-            int* vectorToArray(const VectorInt& vec);
-            float* vectorToArray(const VectorReal& vec, size_t startIndex);
     };
 
 #endif

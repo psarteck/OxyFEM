@@ -17,27 +17,6 @@
 #include <vector>
 
 
-#define FORTRAN 0
-
-float* Solver::vectorToArray(const VectorReal& vec, size_t startIndex) {
-    // Allouer un tableau dynamique de la même taille que le vecteur
-    float* array = new float[vec.size()];
-
-    // Copier les éléments du vecteur dans le tableau
-    std::copy(vec.begin() + startIndex, vec.end(), array);
-
-    return array;  // Retourner le pointeur vers le tableau
-}
-
-int* Solver::vectorToArray(const VectorInt& vec) {
-    // Allouer un tableau dynamique de la même taille que le vecteur
-    int* array = new int[vec.size()];
-
-    // Copier les éléments du vecteur dans le tableau
-    std::copy(vec.begin(), vec.end(), array);
-
-    return array;  // Retourner le pointeur vers le tableau
-}
 
 Solver::Solver(Mesh& mesh_, FEMParameters parameters_) : 
                 mesh(mesh_), 
@@ -57,16 +36,11 @@ Solver::Solver(Mesh& mesh_, FEMParameters parameters_) :
     A = VectorReal(NbLine + NbCoeff, 0.0);
     b = VectorReal(NbLine, 0.0);
 
-    A2 = MatrixReal(NbLine, VectorReal(NbLine, 0.0));
-    b2 = VectorReal(NbLine, 0.0);
-
-
     AdPrCoefLi = VectorInt(NbLine, 0);
-    NumDLDir = VectorInt(NbLine, 0);
-    ValDLDir = VectorReal(NbLine, 0.0);
-
     AdSuccLi = VectorInt(NbCoeff, 0);
     NumCol = VectorInt(NbCoeff, -1);
+    NumDLDir = VectorInt(NbLine, 0);
+    ValDLDir = VectorReal(NbLine, 0.0);
 
     NextAd = 1;
 
@@ -108,45 +82,18 @@ void Solver::assemble(){
 
             for(int j = 0 ; j <= i ; j++){
                 J = nodesIds[j];
-#if FORTRAN == 1
-                int* tabAdPrCoefLi = vectorToArray(AdPrCoefLi);
-                int* tabNumCol = vectorToArray(NumCol);
-                int* tabAdSuccLi = vectorToArray(AdSuccLi);
-                float* tabA = vectorToArray(A, NbLine);
-#endif
-                float value = MatElem[i][j];
+
+                Real value = MatElem[i][j];
 
                 if(I > J){
-#if FORTRAN == 1
-                    assmat_(&I,&J,&value, tabAdPrCoefLi, tabNumCol, tabAdSuccLi, tabA, &NextAd);
-#else 
                     assmat(I,J,value, AdPrCoefLi, NumCol, AdSuccLi, A,  NbLine, NextAd);
-#endif
                 }
                 else if(I < J){
-#if FORTRAN == 1
-                    assmat_(&J,&I,&value, tabAdPrCoefLi, tabNumCol, tabAdSuccLi, tabA, &NextAd);
-#else
                     assmat(J,I,value, AdPrCoefLi, NumCol, AdSuccLi, A,  NbLine, NextAd);
-#endif
                 }
                 else {
                     A[I-1] += MatElem[i][j];
                 }
-#if FORTRAN == 1
-                for(int i =  NbLine ; i < A.size(); i++){
-                    A[i] = tabA[i-NbLine];
-                }
-                for(int i =  0 ; i < AdPrCoefLi.size(); i++){
-                    AdPrCoefLi[i] = tabAdPrCoefLi[i];
-                }
-                for(int i =  0 ; i < NumCol.size(); i++){
-                    NumCol[i] = tabNumCol[i];
-                }
-                for(int i =  0 ; i < AdSuccLi.size(); i++){
-                    AdSuccLi[i] = tabAdSuccLi[i];
-                }
-#endif
             }
 
 
@@ -199,44 +146,17 @@ void Solver::assemble(){
                 for(int j = 0 ; j <= i ; j++){
                     int J = nodesIds[j];
 
-                    int* tabAdPrCoefLi = vectorToArray(AdPrCoefLi);
-                    int* tabNumCol = vectorToArray(NumCol);
-                    int* tabAdSuccLi = vectorToArray(AdSuccLi);
-                    float* tabA = vectorToArray(A, NbLine);
-
                     float value = matAret[i][j];
                     
                     if(I > J){
-#if FORTRAN == 1
-                        assmat_(&I,&J,&value, tabAdPrCoefLi, tabNumCol, tabAdSuccLi, tabA, &NextAd);
-#else
                         assmat(I,J,value, AdPrCoefLi, NumCol, AdSuccLi, A, NbLine, NextAd);
-#endif
                     }
                     else if(I < J){
-#if FORTRAN == 1
-                        assmat_(&J,&I,&value, tabAdPrCoefLi, tabNumCol, tabAdSuccLi, tabA, &NextAd);
-#else
                         assmat(J,I,value, AdPrCoefLi, NumCol, AdSuccLi, A, NbLine, NextAd);
-#endif
                     }
                     else {
                         A[I-1] += matAret[i][j];
                     }
-#if FORTRAN == 1
-                    for(int i =  NbLine ; i < A.size(); i++){
-                        A[i] = tabA[i-NbLine];
-                    }
-                    for(int i =  0 ; i < AdPrCoefLi.size(); i++){
-                        AdPrCoefLi[i] = tabAdPrCoefLi[i];
-                    }
-                    for(int i =  0 ; i < NumCol.size(); i++){
-                        NumCol[i] = tabNumCol[i];
-                    }
-                    for(int i =  0 ; i < AdSuccLi.size(); i++){
-                        AdSuccLi[i] = tabAdSuccLi[i];
-                    }
-#endif
                 }
             }
 
@@ -251,6 +171,95 @@ void Solver::assemble(){
     std::cout << "---------------------------------" << std::endl << std::endl;
 
 }
+
+
+void Solver::fromNOSStoOSS(){
+        
+    std::cout << "-- Non-Ordered Sparse Storage to Ordered Sparse Storage... -- " << std::endl << std::endl;
+
+    MatriceO = VectorReal(NbLine + NbCoeff, 0.0);
+    NumColO = VectorInt(NbCoeff, 0);
+
+    FEMAssembly::cdesse(NbLine, AdPrCoefLi, NumCol, AdSuccLi, A, b, NumDLDir, ValDLDir, AdPrCoefLi, NumColO, MatriceO, b);
+
+    A.clear();
+    A.shrink_to_fit();
+
+    AdSuccLi.clear();
+    AdSuccLi.shrink_to_fit();
+
+    NumCol.clear();
+    NumCol.shrink_to_fit();
+
+    NumDLDir.clear();
+    NumDLDir.shrink_to_fit();
+
+    ValDLDir.clear();
+    ValDLDir.shrink_to_fit();
+    
+}
+
+void Solver::fromOSStoPR() {
+
+    std::cout << "-- Ordered Sparse Storage to Profil Storage... -- " << std::endl << std::endl;
+
+    Profil = VectorInt(NbLine, 0);
+
+    int matSize = 1;
+    Profil[0] = 1;
+    for (int i = 1 ; i < NbLine ; i ++){
+        if(AdPrCoefLi[i-1]!=AdPrCoefLi[i]){
+            matSize += i+1 - NumColO[AdPrCoefLi[i-1]-1];
+        }
+        Profil[i] = matSize;
+    }
+    NbCoeff = matSize-1;
+
+    MatProf.resize(NbLine+matSize-1);
+
+    for (int i = 0 ; i < NbLine+matSize ; i ++){
+        MatProf[i] = 0;
+    }
+    for (int i = 0 ; i < NbLine ; i ++){
+        MatProf[i] = MatriceO[i];
+    }
+    
+    for(int i = 0 ; i < NbLine-1 ; i ++){
+        for(int j = AdPrCoefLi[i] ; j < AdPrCoefLi[i+1] ; j++){
+            MatProf[NbLine+Profil[i]-1+NumColO[j-1]-NumColO[AdPrCoefLi[i]-1]]  = MatriceO[j-1+NbLine];
+        }
+    }
+
+    MatriceO.clear();
+    MatriceO.shrink_to_fit();
+
+    NumColO.clear();
+    NumColO.shrink_to_fit();
+    
+}
+
+
+void Solver::decompLU() {
+    
+    std::cout << "-- LU Decomposition and resolution... -- " << std::endl << std::endl;
+
+    U = VectorReal(NbLine, 0.0);
+
+    VectorReal ld(NbLine, 0.0);
+    VectorReal ll(NbCoeff, 0.0);
+    
+    Real eps = 0.0001;
+
+    VectorReal Y(NbLine, 0.0);
+
+    FEMAssembly::ltlpr(NbLine, Profil, MatProf.begin(), MatProf.begin() + NbLine, eps, ld, ll);
+
+    FEMAssembly::rsprl(NbLine, Profil.begin(), ld.begin(), ll, b.begin(), Y.begin());
+
+    FEMAssembly::rspru(NbLine, Profil, ld, ll, Y, U);
+
+}
+
 
 bool Solver::isNeumannEdge(const int labelEdge){
     for(auto label : parameters.getNeumannLabels()){
@@ -318,49 +327,6 @@ void Solver::assmat(int I, int J, Real X, VectorInt& ADPRCL, VectorInt& NUMCOL,
 }
 
 
-// void Solver::assmat(int I, int J, Real X, VectorInt& AdPrCoefLi, VectorInt& NumCol,
-//             VectorInt& AdSuccLi, VectorReal& Matrice, int& NextAd) {
-
-//     if (I <= J) {
-//         // (TODO)
-//         std::cout << "*Bug* The assmat function n'est utilisée que pour l'assemblage de la partie triangulaire stricte. Vous êtes sur le coefficient (" << I << "," << J << ")." << std::endl;
-//         exit(EXIT_FAILURE);
-//     }
-//     int IAD = AdPrCoefLi[I - 2];
-//     // cout << "IAD : " << IAD << endl;
-//     if (IAD > 0) {
-//         // La ligne I a déjà été rencontrée : recherche de la colonne J
-//         while (NumCol[IAD - 1] != J) {
-//             // Parcours des éléments de la ligne I
-//             int NXT = AdSuccLi[IAD];
-//             cout << "NXT " << NXT << endl;
-//             if (NXT <= 0)
-//                 break;
-//             IAD = NXT;
-            
-//         }
-
-//         // L'élément A(i,j) existe : on l'incrémente et on sort
-//         Matrice[IAD -1] += X;
-//         // *(Matrice + IAD - 1) += X;
-//         return;
-//     } else {
-//         // Création de la ligne I
-//         AdPrCoefLi[I - 1] = NextAd;
-//     }
-
-//     // Création de la colonne J
-//     AdSuccLi[IAD] = NextAd;
-
-//     // Création du coefficient A(i,j) (nouvelle ligne ou colonne)
-//     NumCol[NextAd - 1] = J;
-//     // *(Matrice + NextAd - 1) = X;
-//     Matrice[NextAd - 1] = X;
-//     AdSuccLi[NextAd - 1] = 0;
-//     NextAd++;
-// }
-
-
 void Solver::printB(){
     std::cout << "Second member b : \n";
     for(auto el : b){
@@ -371,65 +337,21 @@ void Solver::printB(){
 
 
 void Solver::printA(){
+    
     std::cout << "Matrix A : \n";
 
-    // for(int i = 0 ; i < NbLine ; i++){
-    //     for(int j = 0 ; j < i ; j++){
-    //         cout << A[NbLine+j+NbLine*i] << " ";
-    //     } 
-    //     cout << A[i] << endl;
-    // }    
     for(auto it : A){
         cout << it << " ";
     }
 }
 
+void Solver::printU(){
 
+    std::cout << "Vector U : \n";
 
-
-void Solver::AFFSMD() {
-    int Lmin, Lmax;
-
-    std::cout << "****** Affichage de la S.M.D. ******" << std::endl;
-
-    do {
-        std::cout << "Donner, dans l'intervalle [1," << NbLine << "], les indices min et max des lignes à afficher. Taper q pour arrêter." << std::endl;
-        std::cin >> Lmin;
-        if (std::cin.fail()) {
-            // Gestion de l'entrée non valide (q pour quitter)
-            std::cin.clear();  // Réinitialiser le flux d'entrée
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Ignorer la ligne invalide
-            break;
-        }
-        std::cin >> Lmax;
-
-        if (Lmin > Lmax || Lmin < 1 || Lmax > NbLine) {
-            std::cout << "Indices invalides. Réessayez." << std::endl;
-        } else {
-            std::cout << std::endl;
-            for (int i = Lmin; i <= Lmax; ++i) {
-                std::cout << "Ligne " << i << ": SecMbr " << b[i] << std::endl;
-                // std::cout << "Ligne " << i << ": SecMbr " << b[i] << " Nuddir " << NumDLDir[i] << " Valdir " << ValDLDir[i] << std::endl;
-            }
-
-            std::cout << "=== MATRICE ===========================" << std::endl;
-            if (Lmin == 1) {
-                std::cout << "--- Ligne 1 ---" << std::endl;
-                std::cout << "Col 1 : " << A[0] << std::endl;
-                Lmin = 2;
-            }
-
-            for (int i = Lmin; i <= Lmax; ++i) {
-                std::cout << "--- Ligne " << i << " ---" << std::endl;
-                int j = AdPrCoefLi[i - 1];
-                while (j != 0) {
-                    std::cout << "Col " << NumCol[j] << " : " << A[NbLine + j] << std::endl;
-                    j = AdSuccLi[j];
-                }
-                std::cout << "Col " << i << " : " << A[i] << std::endl;
-            }
-        }
-    } while (true);
+    for(auto it : U){
+        cout << it << " ";
+    }
 }
 
 

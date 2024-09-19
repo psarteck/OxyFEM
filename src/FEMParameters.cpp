@@ -13,7 +13,39 @@
 
 
 
-    FEMParameters::FEMParameters(std::string fileName) : parameterFile(fileName){
+    FEMParameters::FEMParameters(std::string fileName) : parameterFile(fileName) {
+        if(!getParameterValue()){
+            std::cerr << "Error in the parameters" << parameterFile << std::endl;
+        }
+    }
+
+
+    FEMParameters::FEMParameters(int argc, char *argv[]) {
+
+        std::string defaultParam = "/Users/djo/Dev/OxyFEM/parameters.txt";
+        std::string defaultSaveFile = "/Users/djo/Dev/OxyFEM/results/simu1.txt";
+        std::string defaultMeshPath = "/Users/djo/Dev/OxyFEM/Meshs/";
+
+        if (argc == 4){
+            parameterFile = argv[1];
+            savingFile = argv[2];
+            meshPath = argv[3];
+        } else if (argc == 3) {
+            parameterFile = argv[1];
+            savingFile = argv[2];
+            meshPath = defaultMeshPath;
+        } else if (argc == 2) {
+            parameterFile = argv[1];
+            savingFile = defaultSaveFile;
+            meshPath = defaultMeshPath;
+        } else if (argc == 1) {
+            parameterFile = defaultParam;
+            savingFile = defaultSaveFile;
+            meshPath = defaultMeshPath;
+        } else {
+            std::cerr << "Too much arguments. Needed 2." << std::endl;
+        }
+        
         if(!getParameterValue()){
             std::cerr << "Error in the parameters" << parameterFile << std::endl;
         }
@@ -102,6 +134,14 @@
 
     const std::string& FEMParameters::getMeshName() const {
         return mesh;
+    }
+    
+    const std::string& FEMParameters::getMeshPath() const {
+        return meshPath;
+    }
+
+    const std::string& FEMParameters::getSavingFile() const {
+        return savingFile;
     }
 
     const std::string& FEMParameters::getLagrange() const {

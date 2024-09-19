@@ -25,6 +25,10 @@
         std::string lagrange;
         std::string quadrature;
         std::string parameterFile;
+
+        std::string savingFile;
+        std::string meshPath;
+
         VectorStr dirichletLabels;
         VectorStr homogeneousDirichletLabels;
         VectorStr neumannLabels;
@@ -35,6 +39,8 @@
     
         FEMParameters(std::string fileName);
 
+        FEMParameters(int argc, char *argv[]);
+
         bool getParameterValue();
 
         void printLabel(const VectorStr labels);
@@ -42,6 +48,9 @@
         const std::string& getMeshName() const;
         const std::string& getLagrange() const;
         const std::string& getQuadrature() const;
+
+        const std::string& getMeshPath() const;
+        const std::string& getSavingFile() const;
 
         const VectorStr& getDirichletLabels() const;
         const VectorStr& getHomogeneousDirichletLabels() const;
