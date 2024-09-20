@@ -18,22 +18,6 @@
 
     Mesh::Mesh(){}
 
-
-    Node& Mesh::getNodeAt(int position){
-        return nodes.at(position);
-    }
-
-    const std::vector<Node>& Mesh::getNodes() const{
-        return nodes;
-    }
-    const std::vector<Element>& Mesh::getElements() const{
-        return elements;
-    }
-    const std::vector<Edge>& Mesh::getEdges() const{
-        return edges;
-    }
-
-
     void Mesh::printMesh() const{
         std::cout << "Nodes:" << std::endl;
         std::cout << nodes.size() << std::endl;
@@ -302,6 +286,9 @@
         return true;
 
     }
+
+
+    
 
 
 

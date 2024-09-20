@@ -93,27 +93,9 @@ void Edge::intAret(MatrixReal& elemMatrix, VectorReal& fElem){
 //     return false;
 // }
 
-void Edge::setLabel(int newlabel){
-    label = newlabel;
-}
 
-int Edge::getLabel() const{
-    return label;
-}
 
-int Edge::getNodeNumber(){
-    return nodeList.size();
-}
-
-const VectorInt& Edge::getNodeIDs() const{
-    return nodeIdList;
-}
-
-std::vector<Node> Edge::getNodeList(){
-    return nodeList;
-}
-
-void Edge::printEdge(){
+const void Edge::printEdge() const{
     std::cout << "EdgeLabel : " << getLabel() << std::endl;
     for(auto node : nodeList){
         std::cout << node.getId() << " | ";

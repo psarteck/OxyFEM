@@ -28,47 +28,73 @@
 
     class Edge{
         private :
-            // Node node1;
-            // Node node2;
 
+            // List of the nodes in the edge
             std::vector<Node> nodeList;
 
+            // List of the node ids 
             VectorInt nodeIdList;
+
+            // Number of node per edge
             int nbNodePerAret;
 
+            // Quadrature method
             Quadrature quadraMethodS1;
 
+            // Label of the edge
             int label;
 
+            // Type of the edge
             std::string type;
 
         public :
+            /*!
+            *    Constructor
+            *    @param[in] node1_       First node
+            *    @param[in] node1_       Seconde node
+            *    @param[in] node1_       Label of the edge
+            */
             Edge(Node& node1_, Node& node2_, int label_);
 
+            /*!
+            *    Constructor
+            *    @param[in] nodeList_    List of the node of the edge
+            *    @param[in] label_       Label of the edge
+            */
             Edge(std::vector<Node> nodeList_, int label_);
 
+            /*!
+            *    Integrate the edge
+            *    @param[in] elemMatrix   Elementary matrix of the edge
+            *    @param[in] fElem        Seconde membre of the edge
+            */
             void intAret(MatrixReal& elemMatrix, VectorReal& fElem);
 
             // bool isOnEdge(const std::vector<Edge>& edgeList);
             
             // bool operator==(const Edge& other) const;
 
-            void setLabel(int newlabel);
 
-            int getLabel() const;
+            /* 
+                    GETTER AND SETTER
+            */
 
-            // Node& getNode1() {return node1;}
-            // Node& getNode2() {return node2;}
+            void setLabel(int newlabel) {label = newlabel;};
+
+            const int getLabel() const {return label;};
+
 
             Node& getNodeAt(int position) {return nodeList[position];}
 
-            int getNodeNumber();
+            const int getNodeNumber() const {return nodeList.size();};
 
-            const VectorInt& getNodeIDs() const;
+            const VectorInt& getNodeIDs() const {return nodeIdList;};
 
-            std::vector<Node> getNodeList();
+            const int getNodeIdAt(int i) const {return nodeIdList[i];};
 
-            void printEdge();
+            const std::vector<Node> getNodeList() const {return nodeList;};
+
+            const void printEdge() const;
     };
 
 #endif

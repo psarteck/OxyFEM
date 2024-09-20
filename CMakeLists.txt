@@ -34,6 +34,7 @@ src/FEMAssembly.cpp
 src/System.cpp
 )
 
+# add_compile_options(-Wall -Wextra -Wpedantic)
 
 if(USE_TEST_PROBLEM)
 message(STATUS "Use of tests/FEMProblem_test.cpp for CI")
@@ -44,7 +45,7 @@ set(PROBLEM_FILE src/FEMProblem.cpp)
 endif()
 
 if(USE_FLOAT)
-add_compile_definitions(USE_FLOAT)
+    add_compile_definitions(USE_FLOAT)
 endif()
 
 include_directories(include)

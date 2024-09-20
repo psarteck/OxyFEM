@@ -22,8 +22,7 @@ Solver::Solver(Mesh& mesh_, FEMParameters parameters_) :
                 mesh(mesh_), 
                 parameters(parameters_),
                 elementList(mesh_.getElements()),
-                edgeList(mesh_.getEdges())
-                {
+                edgeList(mesh_.getEdges()) {
     ptsNb = mesh.getNodesNumber();
 
     NbLine = ptsNb;
@@ -49,6 +48,10 @@ Solver::Solver(Mesh& mesh_, FEMParameters parameters_) :
     }
 
     system = std::make_unique<System>(ptsNb);
+
+    sortBoundaryEdges(parameters.getHomogeneousDirichletLabels(), 
+                      parameters.getDirichletLabels(), 
+                      parameters.getNeumannLabels());
 
 }
 
@@ -106,38 +109,50 @@ void Solver::assemble(){
     nbElements = edgeList.size();
     current = 1.0;
 
-    for(auto edge : edgeList){
+    for (const auto& edge : dirHEdges){
+
         float percentage = current / nbElements;
         FEMUtilities::showProgress(percentage);
         current += 1.0;
 
-        int nodeNumberAret = edge.getNodeNumber();
-        const VectorInt& nodesIds = edge.getNodeIDs();
+        for(const auto& id : edge->getNodeIDs()){
+            NumDLDir[id-1] = 0;
+            ValDLDir[id-1] = 0;
+        }
+    }
 
-        if(isDir0Edge(edge.getLabel())){
+    for (const auto& pair : dirNHEdges){
+        
+        for (const auto& edgePtr : pair.second) {
 
-            for(int i = 0 ; i < nodeNumberAret ; i++){
-                int I = nodesIds[i];
-                NumDLDir[I-1] = 0;
-                ValDLDir[I-1] = 0;
+            float percentage = current / nbElements;
+            FEMUtilities::showProgress(percentage);
+            current += 1.0;
+
+
+            for(const auto& node : edgePtr->getNodeList()){
+                const int id = node.getId();
+                NumDLDir[id-1] = -id;
+                ValDLDir[id-1] = FEMProblem::UD(node);
             }
         }
-        else if(isDirNHEdge(edge.getLabel())){
+    }
 
-            for(int i = 0 ; i < nodeNumberAret ; i++){
-                int I = nodesIds[i];
-                NumDLDir[I-1] = -I;
-                ValDLDir[I-1] = FEMProblem::UD(edge.getNodeAt(i));
-            }
-        }
-        else if(isNeumannEdge(edge.getLabel())){
-            //(TODO) Need to understand how assmat works 
-            int nbOfNode = edge.getNodeNumber();
+    for (const auto& pair : neumEdges){
 
+        for (auto& edge : pair.second){
+            
+            float percentage = current / nbElements;
+            FEMUtilities::showProgress(percentage);
+            current += 1.0;
+            
+            int nbOfNode = edge->getNodeNumber();
             MatrixReal matAret(nbOfNode, VectorReal(nbOfNode, 0.0));
             VectorReal fAret(nbOfNode, 0.0);
 
-            edge.intAret(matAret, fAret);
+            const VectorInt& nodesIds = edge->getNodeIDs();
+        
+            edge->intAret(matAret, fAret);
 
             for (int i = 0 ; i < nbOfNode ; i++) {
                 int I = nodesIds[i];
@@ -159,12 +174,7 @@ void Solver::assemble(){
                     }
                 }
             }
-
         }
-        else {
-            std::cerr << "Edge label " << edge.getLabel() << " is not correct." << std::endl;
-        }
-
     }
 
     std::cout << std::endl << std::endl << "Assembling done." << std::endl;
@@ -261,6 +271,32 @@ void Solver::decompLU() {
 }
 
 
+
+void Solver::sortBoundaryEdges(VectorStr dirH0Labels,
+                               VectorStr dirNHLabels,
+                               VectorStr neumannLabels) {
+        
+    for (auto& edge : edgeList) {
+        for (auto label : dirH0Labels){
+            if(edge.getLabel() == std::stoi(label)){
+                dirHEdges.push_back(&edge);
+            }
+
+        }
+        for (const auto& label : dirNHLabels) {
+            if (edge.getLabel() == std::stoi(label)) {
+                dirNHEdges[edge.getLabel()].push_back(&edge);
+            }
+        }
+        for (const auto& label : neumannLabels) {
+            if (edge.getLabel() == std::stoi(label)) {
+                neumEdges[edge.getLabel()].push_back(&edge);
+            }
+        }
+    }
+}
+
+
 bool Solver::isNeumannEdge(const int labelEdge){
     for(auto label : parameters.getNeumannLabels()){
         if(labelEdge == std::stoi(label)){
@@ -324,6 +360,38 @@ void Solver::assmat(int I, int J, Real X, VectorInt& ADPRCL, VectorInt& NUMCOL,
     LMATRI[NEXTAD - 1 + nbLign] = X;
     ADSUCL[NEXTAD - 1] = 0;
     NEXTAD += 1;
+}
+
+void Solver::printEdgesLists(){
+
+    std::cout << std::endl << "Homogeneous Dirichlet : " << std::endl;
+    for(const auto& edge : dirHEdges){
+        if (edge) {  
+            edge->printEdge();
+        }
+    }
+
+    std::cout << std::endl << "Non homogeneous Dirichlet : " << std::endl;
+    for(const auto& pair : dirNHEdges){
+        std::cout << "Key: " << pair.first << " has " << pair.second.size() << " edges:" << std::endl;
+        for (const auto& edgePtr : pair.second) {
+            if (edgePtr) {  
+                edgePtr->printEdge();
+            }
+        }
+        std::cout << std::endl;
+    }
+
+    std::cout << std::endl << "Neumann : " << std::endl;
+    for(const auto& pair : neumEdges){
+        std::cout << "Key: " << pair.first << " has " << pair.second.size() << " edges:" << std::endl;
+        for (const auto& edgePtr : pair.second) {
+            if (edgePtr) {  
+                edgePtr->printEdge();
+            }
+        }
+        std::cout << std::endl;
+    }
 }
 
 
