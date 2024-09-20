@@ -76,6 +76,7 @@
             std::istringstream iss(line);
             std::string key, value;
             if (std::getline(iss, key, '=') && std::getline(iss, value)) {
+                value.erase(value.find_last_not_of(" \n\r\t") + 1);
                 if (key == "mesh") {
                     mesh = value;
                 } else if (key == "lagrange") {

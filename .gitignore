@@ -36,6 +36,7 @@ build/*
 **/oxyTest
 .cache
 tests/references/results.txt
+tests/references/resultsCircle.txt
 
 .vscode
 
