@@ -23,6 +23,8 @@ Solver::Solver(Mesh& mesh_, FEMParameters parameters_) :
                 parameters(parameters_),
                 elementList(mesh_.getElements()),
                 edgeList(mesh_.getEdges()) {
+
+    std::cout << "---- Constructing the solver... ----" << std::endl;
     ptsNb = mesh.getNodesNumber();
 
     NbLine = ptsNb;
@@ -57,7 +59,7 @@ Solver::Solver(Mesh& mesh_, FEMParameters parameters_) :
 
 void Solver::assemble(){
     
-    std::cout << endl << "--- Assembling the matrix : -----" << std::endl;
+    std::cout << "--- Assembling the matrix : -----" << std::endl;
 
 //Integrate on the elements
     int nbElements = elementList.size();
@@ -275,6 +277,9 @@ void Solver::decompLU() {
 void Solver::sortBoundaryEdges(VectorStr dirH0Labels,
                                VectorStr dirNHLabels,
                                VectorStr neumannLabels) {
+
+    std::cout << "-- Sorting Boundary edges... -- " << std::endl << std::endl;
+
         
     for (auto& edge : edgeList) {
         for (auto label : dirH0Labels){

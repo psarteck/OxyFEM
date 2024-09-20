@@ -4,8 +4,98 @@
 #include <cstdlib>  
 #include <cmath>
 #include <unistd.h>
+#include <unordered_map>
+
 
 #include "Types.hpp"
+#include "FEMUtilities.hpp"
+
+
+
+struct ConfigData {
+    std::unordered_map<std::string, std::vector<std::string>> data;
+    std::vector<std::string> keys; 
+
+};
+
+ConfigData readConfigFile(const std::string& filename) {
+    ConfigData config;
+    std::ifstream file(filename);
+    
+    if (!file) {
+        std::cerr << "Error : Impossible to open the file : " << filename << std::endl;
+        return config;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+
+        size_t pos = line.find('=');
+        if (pos != std::string::npos) {
+            std::string key = line.substr(0, pos);
+            std::string value = line.substr(pos + 1);
+
+            key.erase(0, key.find_first_not_of(" \t"));
+            key.erase(key.find_last_not_of(" \t") + 1);
+            value.erase(0, value.find_first_not_of(" \t"));
+            value.erase(value.find_last_not_of(" \t") + 1);
+
+            std::istringstream iss(value);
+            std::vector<std::string> values;
+            std::string val;
+
+            while (iss >> val) {
+                values.push_back(val);
+            }
+
+            config.data[key].insert(config.data[key].end(), values.begin(), values.end());
+            config.keys.push_back(key); 
+
+        }
+    }
+
+    file.close();
+    return config;
+}
+
+void updateConfigFile(const std::string& filename, const std::string& key, const std::vector<std::string>& newValues) {
+    ConfigData config = readConfigFile(filename);
+    
+    if (config.data.find(key) != config.data.end()) {
+        config.data[key] = newValues; 
+    } else {
+        std::cerr << "Key not found : " << key << std::endl;
+        return;
+    }
+
+    std::ofstream file(filename);
+    if (!file) {
+        std::cerr << "Error : Impossible to open the file for writing : " << filename << std::endl;
+        return;
+    }
+
+    for (const auto& key : config.keys) {
+        file << key << "=";
+        for (const auto& val : config.data[key]) {
+            file << val << " ";
+        }
+        file << std::endl;
+    }
+
+    file.close();
+}
+
+void printConfigData(const ConfigData& config) {
+    for (const auto& pair : config.data) {
+        std::cout << pair.first << " = ";
+        for (const auto& val : pair.second) {
+            std::cout << val << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
 
 std::string GetCurrentWorkingDirectory() {
     char cwd[1024];
@@ -56,8 +146,6 @@ bool CompareFiles(const std::string& resultFile, const std::string& referenceFil
 
 TEST(NonRegressionTest, CompareOutputWithReference) {
 
-    std::cout << "Current directory : " << GetCurrentWorkingDirectory() << std::endl;
-
     std::string executablePath = "../exeFEM";
     std::string parametersFile = "../../tests/references/parametersNeDir.txt";
     std::string meshsPath = "../../Meshs/";
@@ -69,6 +157,28 @@ TEST(NonRegressionTest, CompareOutputWithReference) {
     ASSERT_EQ(result, 0) << "Error : The exectution of " << command << " crashed with the code : " << result;
 
     std::string referenceFile = "../../tests/references/refNeDir.txt";
+    EXPECT_TRUE(CompareFiles(resultsFile, referenceFile, 1e-4));
+
+}
+
+TEST(NonRegressionTestCircle, CompareOutputWithReference) {
+
+    std::string executablePath = "../exeFEM";
+    std::string parametersFile = "../../tests/references/parametersNeDir.txt";
+    std::string meshsPath = "../../Meshs/";
+    std::string resultsFile = "../../tests/references/resultsCircle.txt";
+    
+    updateConfigFile(parametersFile, "mesh", {"circleN100.msh"});
+    updateConfigFile(parametersFile, "HomogeneousDirichletLabel", {"1"});
+    updateConfigFile(parametersFile, "DirichletLabel", {""});
+    updateConfigFile(parametersFile, "NeumannLabel", {""});
+
+    std::string command = executablePath + " " + parametersFile + " " + resultsFile + " " + meshsPath;
+    int result = system(command.c_str());
+    
+    ASSERT_EQ(result, 0) << "Error : The exectution of " << command << " crashed with the code : " << result;
+
+    std::string referenceFile = "../../tests/references/refCircle.txt";
     EXPECT_TRUE(CompareFiles(resultsFile, referenceFile, 1e-4));
 
 }

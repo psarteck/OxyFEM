@@ -203,7 +203,7 @@
         }
         cout << "The mesh file " << fileName << " has been correctly read." << endl;
 
-        std::cout << "---------------------------------" << std::endl;
+        std::cout << "---------------------------------" << std::endl << std::endl;
         return true;
 
     }

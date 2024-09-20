@@ -37,11 +37,11 @@ src/System.cpp
 # add_compile_options(-Wall -Wextra -Wpedantic)
 
 if(USE_TEST_PROBLEM)
-message(STATUS "Use of tests/FEMProblem_test.cpp for CI")
-set(PROBLEM_FILE tests/FEMProblem_test.cpp)
+    message(STATUS "Use of tests/FEMProblem_test.cpp for CI")
+    set(PROBLEM_FILE tests/FEMProblem_test.cpp)
 else()
-message(STATUS "Use of src/FEMProblem.cpp")
-set(PROBLEM_FILE src/FEMProblem.cpp)
+    message(STATUS "Use of src/FEMProblem.cpp")
+    set(PROBLEM_FILE src/FEMProblem.cpp)
 endif()
 
 if(USE_FLOAT)
