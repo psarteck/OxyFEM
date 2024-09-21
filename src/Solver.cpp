@@ -189,8 +189,10 @@ void Solver::fromNOSStoOSS(){
         
     std::cout << "-- Non-Ordered Sparse Storage to Ordered Sparse Storage... -- " << std::endl << std::endl;
 
-    MatriceO = VectorReal(NbLine + NbCoeff, 0.0);
-    NumColO = VectorInt(NbCoeff, 0);
+    // MatriceO = VectorReal(NbLine + NbCoeff, 0.0);
+    MatriceO.resize(NbLine + NbCoeff);
+    // NumColO = VectorInt(NbCoeff, 0);
+    NumColO.resize(NbCoeff);
 
     FEMAssembly::cdesse(NbLine, AdPrCoefLi, NumCol, AdSuccLi, A, b, NumDLDir, ValDLDir, AdPrCoefLi, NumColO, MatriceO, b);
 
@@ -255,7 +257,8 @@ void Solver::decompLU() {
     
     std::cout << "-- LU Decomposition and resolution... -- " << std::endl << std::endl;
 
-    U = VectorReal(NbLine, 0.0);
+    // U = VectorReal(NbLine, 0.0);
+    U.resize(NbLine);
 
     VectorReal ld(NbLine, 0.0);
     VectorReal ll(NbCoeff, 0.0);
