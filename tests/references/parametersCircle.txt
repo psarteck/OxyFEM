@@ -1,0 +1,7 @@
+mesh=circleN100.msh 
+HomogeneousDirichletLabel=1 
+DirichletLabel=
+NeumannLabel= 
+DomainLabels=0 
+quadrature=gauss 
+lagrange=P1 

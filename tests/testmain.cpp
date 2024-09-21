@@ -164,14 +164,9 @@ TEST(NonRegressionTest, CompareOutputWithReference) {
 TEST(NonRegressionTestCircle, CompareOutputWithReference) {
 
     std::string executablePath = "../exeFEM";
-    std::string parametersFile = "../../tests/references/parametersNeDir.txt";
+    std::string parametersFile = "../../tests/references/parametersCircle.txt";
     std::string meshsPath = "../../Meshs/";
     std::string resultsFile = "../../tests/references/resultsCircle.txt";
-    
-    updateConfigFile(parametersFile, "mesh", {"circleN100.msh"});
-    updateConfigFile(parametersFile, "HomogeneousDirichletLabel", {"1"});
-    updateConfigFile(parametersFile, "DirichletLabel", {""});
-    updateConfigFile(parametersFile, "NeumannLabel", {""});
 
     std::string command = executablePath + " " + parametersFile + " " + resultsFile + " " + meshsPath;
     int result = system(command.c_str());
