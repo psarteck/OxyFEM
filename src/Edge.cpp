@@ -40,6 +40,8 @@ Edge::Edge(std::vector<Node> nodeList_, int label_) : nodeList(nodeList_), label
 
 void Edge::intAret(MatrixReal& elemMatrix, VectorReal& fElem){
 
+    Real eps = std::numeric_limits<Real>::epsilon();
+
     int d = 1;
     
     int q = FEMIntegrale::returnQ(type);
@@ -61,15 +63,18 @@ void Edge::intAret(MatrixReal& elemMatrix, VectorReal& fElem){
         VectorReal imagPoint = FEMIntegrale::transFK(nodeList, baseFct);
 
         Real eltdif = pds[indicepts] * std::sqrt(Jcob[0][0]*Jcob[0][0] + Jcob[0][1]*Jcob[0][1]);
+        if (std::fabs(eltdif) > eps){
         
-        Real cofvarWW = FEMProblem::BN(imagPoint);
-        
-        FEMIntegrale::WW(nodeList, baseFct, eltdif, cofvarWW, elemMatrix);
-        
-        Real cofvarW = FEMProblem::FN(imagPoint, label);
+            Real cofvarWW = FEMProblem::BN(imagPoint);
+            
+            if (std::fabs(cofvarWW) > eps)
+                FEMIntegrale::WW(nodeList, baseFct, eltdif, cofvarWW, elemMatrix);
+            
+            Real cofvarW = FEMProblem::FN(imagPoint, label);
 
-        FEMIntegrale::W(nodeList, baseFct, eltdif, cofvarW, fElem);
-        
+            if (std::fabs(cofvarW) > eps)
+                FEMIntegrale::W(nodeList, baseFct, eltdif, cofvarW, fElem);
+        }
     }
 
 }

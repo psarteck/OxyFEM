@@ -11,6 +11,7 @@
 \*---------------------------------------------------------------------------*/
 #include "Element.hpp"
 #include <vector>
+#include <cmath>
 
 
     using namespace std;
@@ -52,6 +53,9 @@
 
 
     void Element::intElem(MatrixReal& elemMatrix, VectorReal& fElem){
+
+        Real eps = std::numeric_limits<Real>::epsilon();
+
         int q = FEMIntegrale::returnQ(type);
 
         quadraMethodS1.weightsPoints(type);
@@ -73,23 +77,28 @@
             VectorReal imagPoint = FEMIntegrale::transFK(nodes, valBase);
 
             Real eltdif = det * pds[indicepts];
-            
-            MatrixReal cofvarAD(2, VectorReal(2,0.0));
 
-            cofvarAD[0][0] = FEMProblem::A11(imagPoint);
-            cofvarAD[0][1] = FEMProblem::A12(imagPoint);
-            cofvarAD[1][0] = FEMProblem::A12(imagPoint);
-            cofvarAD[1][1] = FEMProblem::A22(imagPoint);
+            if (std::fabs(det) > eps){
             
-            FEMIntegrale::ADWDW(nodes, valDerBase, eltdif, imagPoint, cofvarAD, matInv, elemMatrix);
+                MatrixReal cofvarAD(2, VectorReal(2,0.0));
 
-            Real cofvarWW = FEMProblem::A00(imagPoint);
-            
-            FEMIntegrale::WW(nodes, valBase, eltdif, cofvarWW, elemMatrix);
-                    
-            Real cofvarW = FEMProblem::FOMEGA(imagPoint);
-            
-            FEMIntegrale::W(nodes, valBase, eltdif, cofvarW, fElem);
+                cofvarAD[0][0] = FEMProblem::A11(imagPoint);
+                cofvarAD[0][1] = FEMProblem::A12(imagPoint);
+                cofvarAD[1][0] = FEMProblem::A12(imagPoint);
+                cofvarAD[1][1] = FEMProblem::A22(imagPoint);
+                
+                FEMIntegrale::ADWDW(nodes, valDerBase, eltdif, imagPoint, cofvarAD, matInv, elemMatrix);
+
+                Real cofvarWW = FEMProblem::A00(imagPoint);
+
+                if (std::fabs(cofvarWW) > eps)    
+                    FEMIntegrale::WW(nodes, valBase, eltdif, cofvarWW, elemMatrix);
+                        
+                Real cofvarW = FEMProblem::FOMEGA(imagPoint);
+                
+                if (std::fabs(cofvarW) > eps)    
+                    FEMIntegrale::W(nodes, valBase, eltdif, cofvarW, fElem);
+            }
 
         }
     }
