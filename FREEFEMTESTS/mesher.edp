@@ -1,0 +1,12 @@
+load "gmsh"
+
+
+border Gamma1(t=0,2*pi){x=cos(t);y=sin(t);label=1;};
+
+int n = 100;
+
+mesh Th = buildmesh(Gamma1(n));
+
+savemesh(Th, "/Users/djo/Dev/OxyFEM/Meshs/circleN100.msh");
+
+plot(Th, wait=1);
