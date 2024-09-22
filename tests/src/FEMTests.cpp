@@ -1,25 +1,21 @@
-#include <gtest/gtest.h>
 #include <fstream>
 #include <string>
 #include <cstdlib>  
 #include <cmath>
 #include <unistd.h>
 #include <unordered_map>
+#include <iostream>
+#include <sstream>
 
 
-#include "Types.hpp"
-#include "FEMUtilities.hpp"
+#include "FEMTests.hpp"
+
+namespace FEMTests {
 
 
 
-struct ConfigData {
-    std::unordered_map<std::string, std::vector<std::string>> data;
-    std::vector<std::string> keys; 
-
-};
-
-ConfigData readConfigFile(const std::string& filename) {
-    ConfigData config;
+FEMTests::ConfigData readConfigFile(const std::string& filename) {
+    FEMTests::ConfigData config;
     std::ifstream file(filename);
     
     if (!file) {
@@ -144,44 +140,5 @@ bool CompareFiles(const std::string& resultFile, const std::string& referenceFil
     return true;
 }
 
-TEST(NonRegressionTest, CompareOutputWithReference) {
-
-    std::string executablePath = "../exeFEM";
-    std::string parametersFile = "../../tests/references/parametersNeDir.txt";
-    std::string meshsPath = "../../Meshs/";
-    std::string resultsFile = "../../tests/references/results.txt";
-
-    std::string command = executablePath + " " + parametersFile + " " + resultsFile + " " + meshsPath;
-    int result = system(command.c_str());
-    
-    ASSERT_EQ(result, 0) << "Error : The exectution of " << command << " crashed with the code : " << result;
-
-    std::string referenceFile = "../../tests/references/refNeDir.txt";
-    EXPECT_TRUE(CompareFiles(resultsFile, referenceFile, 1e-4));
-
-}
-
-TEST(NonRegressionTestCircle, CompareOutputWithReference) {
-
-    std::string executablePath = "../exeFEM";
-    std::string parametersFile = "../../tests/references/parametersCircle.txt";
-    std::string meshsPath = "../../Meshs/";
-    std::string resultsFile = "../../tests/references/resultsCircle.txt";
-
-    std::string command = executablePath + " " + parametersFile + " " + resultsFile + " " + meshsPath;
-    int result = system(command.c_str());
-    
-    ASSERT_EQ(result, 0) << "Error : The exectution of " << command << " crashed with the code : " << result;
-
-    std::string referenceFile = "../../tests/references/refCircle.txt";
-    EXPECT_TRUE(CompareFiles(resultsFile, referenceFile, 1e-4));
-
-}
-
-
-int main(int argc, char **argv) {
-
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
 
 }

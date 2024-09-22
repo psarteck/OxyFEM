@@ -15,12 +15,17 @@ set(TEST_SOURCES
     ../src/FEMIntegrale.cpp
     ../src/FEMAssembly.cpp
     ../src/System.cpp
-    FEMProblem_test.cpp
+    src/FEMProblem_test.cpp
+    src/FEMTests.cpp
 )
 
-add_executable(oxyTest ${TEST_SOURCES} testmain.cpp)
+include_directories(include)
 
+add_executable(oxyTest ${TEST_SOURCES} src/testmain.cpp)
 target_link_libraries(oxyTest ${GTEST_LIBRARIES} pthread)
 
+add_executable(oxyTestCircle ${TEST_SOURCES} src/testmainCircle.cpp)
+target_link_libraries(oxyTestCircle ${GTEST_LIBRARIES} pthread)
 
-add_test(NAME OxyTests COMMAND oxyTest)
+add_test(NAME OxyTestNeDir COMMAND oxyTest)
+add_test(NAME OxyTestsCircle COMMAND oxyTestCircle)
