@@ -38,7 +38,7 @@ src/System.cpp
 
 if(USE_TEST_PROBLEM)
     message(STATUS "Use of tests/FEMProblem_test.cpp for CI")
-    set(PROBLEM_FILE tests/FEMProblem_test.cpp)
+    set(PROBLEM_FILE tests/src/FEMProblem_test.cpp)
 else()
     message(STATUS "Use of src/FEMProblem.cpp")
     set(PROBLEM_FILE src/FEMProblem.cpp)
