@@ -231,7 +231,7 @@ void Solver::fromOSStoPR() {
 
     MatProf.resize(NbLine+matSize-1);
 
-    for (int i = 0 ; i < NbLine+matSize ; i ++){
+    for (int i = 0 ; i < NbLine+matSize - 1 ; i ++){
         MatProf[i] = 0;
     }
     for (int i = 0 ; i < NbLine ; i ++){
