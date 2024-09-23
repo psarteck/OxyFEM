@@ -21,7 +21,7 @@
     class Node{
         private : 
             Real x, y, z;
-            const int id;
+            int id;
         public :
             /**
             * @brief Constructor.
@@ -34,7 +34,16 @@
             Node(Real x_, Real y_, Real z_);
             Node(Real x_, Real y_);
             Node(Real x_);
-
+            Node(const Node& other) : x(other.x), y(other.y), z(other.z), id(other.id) {}
+            Node& operator=(const Node& other) {
+                if (this != &other) {
+                    x = other.x;
+                    y = other.y;
+                    z = other.z;
+                    id = other.id;
+                }
+                return *this;
+            }
 
             bool operator==(const Node& other) const;
             Real operator[](int index) const;

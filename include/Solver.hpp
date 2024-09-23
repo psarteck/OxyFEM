@@ -15,6 +15,9 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+// #include <Eigen/Sparse>
+// #include <Eigen/SparseLU>
+// #include <Eigen/SparseCholesky>
 
 #include "Mesh.hpp"
 #include "FEMParameters.hpp"
@@ -31,9 +34,11 @@
 
             // Matrix of the linear system
             VectorReal A;
+            // Eigen::SparseMatrix<Real> Ae;
 
             // Second member of the linear system
             VectorReal b;
+            // Eigen::VectorXd be;
 
             // Non Ordered Sparse Storage elements
             VectorInt AdPrCoefLi;
@@ -53,6 +58,8 @@
 
             // Solution of the linear system
             VectorReal U;
+            // Eigen::VectorXd Ue;
+
 
             // Number of nodes
             int ptsNb; 
@@ -116,6 +123,12 @@
             void decompLU();
 
             /*!
+            * Solve with Eigen (TODO) Finish
+            * @return True if solve, if not False
+            */
+            bool eigenSolve();
+
+            /*!
             * Sort the edge of the boundary in three lists
             * @param[in] dirH0Labels     List of the homogenous Dirichlet labels
             * @param[in] dirNHLabels     List of the non homogenous Dirichlet labels
@@ -137,10 +150,15 @@
 
 
             void printB();
+            // void printBe();
             void printA();
+            // void printAe();
             void printU();
+            // void printUe();
 
             VectorReal& getU(){return U;}
+
+            // Eigen::VectorXd& getUe(){return Ue;}
 
 
     };

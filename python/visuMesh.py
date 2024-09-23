@@ -103,7 +103,7 @@ if __name__ == "__main__":
     # Lire les arguments
     args = parser.parse_args()
 
-    repertory = "/Users/djo/Desktop/MEF/C++/Meshs/"
+    repertory = "/Users/djo/Dev/OxyFem/Meshs/"
 
     # Remplacez 'votre_fichier.msh' par le chemin vers votre fichier .msh
     maillage = Maillage(repertory + args.filepath)

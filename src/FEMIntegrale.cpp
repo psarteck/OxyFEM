@@ -60,6 +60,54 @@ VectorReal FEMIntegrale::baseFunctions(const Node& pts, const std::string type, 
     return valBase;
 }
 
+VectorReal FEMIntegrale::baseFunctions(const Node& currentPts, const std::string type, const std::vector<Node>& elementsPts){
+    
+    VectorReal valBase;
+
+    // if(type == "T1"){
+        const Real xA = elementsPts[0].getX();
+        const Real xB = elementsPts[1].getX();
+        const Real xC = elementsPts[2].getX();
+        
+        const Real yA = elementsPts[0].getY();
+        const Real yB = elementsPts[1].getY();
+        const Real yC = elementsPts[2].getY();
+
+        const Real x = currentPts.getX(), y = currentPts.getY();
+
+        const Real denom = 0.5 * std::abs( xA*(yB-yC) + xB*(yC-yA) + xC*(yA-yB));
+
+        Real phiA = ( (xB*yC - xC*yB) + x*(yB-yC) + y*(xC-xB) ) / denom;
+        Real phiB = ( (xC*yA - xA*yC) + x*(yC-yA) + y*(xA-xC) ) / denom;
+        Real phiC = ( (xA*yB - xB*yA) + x*(yA-yB) + y*(xB-xA) ) / denom;
+
+        valBase.push_back(phiA);  
+        valBase.push_back(phiB);  
+        valBase.push_back(phiC);
+    // }
+
+    return valBase;
+}
+
+MatrixReal FEMIntegrale::baseDerFunctions(const std::string type, const std::vector<Node>& nodes){
+    
+    MatrixReal valDerBase;
+
+    // if(type == "T1"){
+        const Real xA = nodes[0].getX(), yA = nodes[0].getY();
+        const Real xB = nodes[1].getX(), yB = nodes[1].getY();
+        const Real xC = nodes[2].getX(), yC = nodes[2].getY();
+
+        const Real denom = 0.5 * std::abs( xA*(yB-yC) + xB*(yC-yA) + xC*(yA-yB));
+
+        valDerBase.push_back({(yB-yC) / denom, (xC-xB) / denom});  
+        valDerBase.push_back({(yC-yA) / denom, (xA-xC) / denom});  
+        valDerBase.push_back({(yA-yB) / denom, (xB-xA) / denom});  
+    // }
+
+    return valDerBase;
+}
+
 
 MatrixReal FEMIntegrale::baseDerFunctions(const Node& pts, const std::string type, const int number){
     // (TODO) Deleter number
@@ -176,7 +224,7 @@ void FEMIntegrale::WW(const std::vector<Node> nodes, const VectorReal valBase, c
   	}
 }
 
-void FEMIntegrale::W(const std::vector<Node> nodes, const VectorReal valBase, const Real diffElement, const Real cofvar, VectorReal& fElem){
+void FEMIntegrale::W(const std::vector<Node>& nodes, const VectorReal& valBase, const Real diffElement, const Real cofvar, VectorReal& fElem){
     for (int i = 0 ; i < nodes.size() ; i++) {
         fElem[i] += diffElement * cofvar * valBase[i];
   	}
@@ -202,7 +250,7 @@ MatrixReal FEMIntegrale::invert2x2(MatrixReal& mat, Real& det){
 }
 
 
-Real FEMIntegrale::prodScal(MatrixReal Mat1, MatrixReal Mat2, int indiceAB, int indiceIJ){
+Real FEMIntegrale::prodScal(const MatrixReal& Mat1, MatrixReal& Mat2, const int& indiceAB, const int& indiceIJ){
     float somme = 0;
     for(int k = 0 ; k < 2 ; k++){
         somme += Mat1[indiceIJ][k]*Mat2[indiceAB][k];

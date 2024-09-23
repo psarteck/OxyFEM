@@ -30,27 +30,42 @@
     class Element {
 
         private : 
-            const int id;   
-            const int number; // Number of the element in the mesh
-            const VectorInt nodeIds;
-            std::vector<Edge> edges;
-            std::vector<Node> nodes;
-            VectorReal valBase;
-            MatrixReal valDerBase;
-            // MatrixD elemMatrix;
-            // VectorReal fElem;
 
-            Quadrature quadraMethodS1;
+            // Id of the element
+            const int id;   
+            // Number of the element in the mesh
+            const int number; 
+
+            // Ids of the constituting nodes of the element
+            const VectorInt nodeIds;
+
+            // Edges of the element
+            std::vector<Edge> edges;
+            
+            // Nodes of the element
+            std::vector<Node> nodes;
+
+            // Value of the basis functions
+            VectorReal valBase;
+
+            // Value of the derivated basis functions
+            MatrixReal valDerBase;
+
+            // Quadrature methods 
+            Quadrature quadraMethod;
             // Quadrature quadraMethodT1;
             // Quadrature quadraMethodQ1;
 
-
-            VectorInt NuDElem;
-            VectorReal uDElem;
-
+            // Number of nodes
             int nodeNb;
+
+            // Type of the element
             std::string type;
+
+            // Label of the element
             int label;
+
+            // Dimension of the element 2D or 3D
             int dimension;
 
         public :
@@ -60,11 +75,9 @@
 
             Element(int id_, VectorInt& nodeIds, std::vector<Node> & nodes_, std::vector<Edge> & edges_);
 
+
             
             void intElem(MatrixReal& elemMatrix, VectorReal& fElem);
-
-
-            void cal1Elem(VectorReal& fElem, MatrixReal& elemMatrix);
 
 
             void impCalEl(int K, int typEl, int nbneel, MatrixReal MatElem, VectorReal SMbrElem,

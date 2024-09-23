@@ -31,7 +31,11 @@ namespace FEMIntegrale {
 
     VectorReal baseFunctions(const Node& pts, const std::string type, const int number = 0);
 
+    VectorReal baseFunctions(const Node& currentPts, const std::string type, const std::vector<Node>& elementsPts);
+
     MatrixReal baseDerFunctions(const Node& pts, const std::string type, const int number = 0);
+
+    MatrixReal baseDerFunctions(const std::string type, const std::vector<Node>& nodes);
 
     MatrixReal matJacob(const std::vector<Node> selectNodes, const MatrixReal valDerBase, const std::string type);
 
@@ -41,11 +45,11 @@ namespace FEMIntegrale {
 
     void WW(const std::vector<Node> nodes, const VectorReal valBase, const Real diffElement, const Real cofvar, MatrixReal& elemMatrix);
 
-    void W(const std::vector<Node> nodes, const VectorReal valBase, const Real diffElement, const Real cofvar, VectorReal& fElem);
+    void W(const std::vector<Node>& nodes, const VectorReal& valBase, const Real diffElement, const Real cofvar, VectorReal& fElem);
 
     MatrixReal invert2x2(MatrixReal& mat, Real& det);
 
-    Real prodScal(MatrixReal Mat1, MatrixReal Mat2, int indiceAB, int indiceIJ);
+    Real prodScal(const MatrixReal& Mat1, MatrixReal& Mat2, const int& indiceAB, const int& indiceIJ);
 
 }
 

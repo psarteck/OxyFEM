@@ -22,7 +22,10 @@ Solver::Solver(Mesh& mesh_, FEMParameters parameters_) :
                 mesh(mesh_), 
                 parameters(parameters_),
                 elementList(mesh_.getElements()),
-                edgeList(mesh_.getEdges()) {
+                edgeList(mesh_.getEdges()){ //, 
+                // Ae(mesh_.getNodesNumber(),mesh_.getNodesNumber()),
+                // be(mesh_.getNodesNumber()),
+                // Ue(mesh_.getNodesNumber()) {
 
     std::cout << "---- Constructing the solver... ----" << std::endl;
     ptsNb = mesh.getNodesNumber();
@@ -370,6 +373,26 @@ void Solver::assmat(int I, int J, Real X, VectorInt& ADPRCL, VectorInt& NUMCOL,
     NEXTAD += 1;
 }
 
+
+// bool Solver::eigenSolve() {
+
+//     // (TODO) Verify the node with Dirichlet condition 
+//     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
+//     solver.compute(Ae); 
+//     if (solver.info() != Eigen::Success) {
+//         std::cerr << "Error while decomposing the matrix." << std::endl;
+//         return false;
+//     }
+
+//     Ue = solver.solve(be); 
+
+//     if (solver.info() != Eigen::Success) {
+//         std::cerr << "Error in the resolution." << std::endl;
+//         return false;
+//     }
+//     return true;
+// }
+
 void Solver::printEdgesLists(){
 
     std::cout << std::endl << "Homogeneous Dirichlet : " << std::endl;
@@ -411,6 +434,18 @@ void Solver::printB(){
     std::cout << endl;
 }
 
+// void Solver::printBe(){
+//     std::cout << "Second member be : \n";
+//     for(auto el : be){
+//         std::cout << el << " ";
+//     }
+//     std::cout << endl;
+// }
+// void Solver::printAe(){
+    
+// Eigen::MatrixXd denseMatrix = Eigen::MatrixXd(Ae);
+//     std::cout << "Matrice A :\n" << denseMatrix << std::endl;
+// }
 
 void Solver::printA(){
     
@@ -429,6 +464,15 @@ void Solver::printU(){
         cout << it << " ";
     }
 }
+
+// void Solver::printUe(){
+
+//     std::cout << "Vector Ue : \n";
+
+//     for(auto it : Ue){
+//         cout << it << " ";
+//     }
+// }
 
 
 

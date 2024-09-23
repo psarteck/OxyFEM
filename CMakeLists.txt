@@ -11,6 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../)
 
 add_subdirectory(external/eigen)
+include_directories(external/eigen)
 
 # add_subdirectory(external/googletest)
 
