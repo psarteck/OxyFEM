@@ -26,7 +26,7 @@
 
 
         for (const auto& node : nodes) {
-            std::cout << "Node ID: " << node.getId() << "  X: " << node.getX() << "  Y: " << node.getY() << "  Z: " << node.getZ() << std::endl;
+            std::cout << "Node ID: " << node.getId() << "  X: " << node.getX() << "  Y: " << node.getY() << "  Z: " << node.getZ() << "  Label : " << node.getLabel() << std::endl;
         }
 
         std::cout << "\nElements:" << std::endl;
@@ -184,7 +184,7 @@
         for(int i = 0 ; i < nbVertices ; i++){
             Real x,y,label;
             file >> x >> y >> label;
-            nodes.push_back(Node(x, y, 0.0, i+1));
+            nodes.push_back(Node(x, y, 0.0, i+1, label));
         }
 
         for(int i = 0 ; i < nbTriangles ; i++){

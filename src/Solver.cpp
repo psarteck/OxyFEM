@@ -10,9 +10,11 @@
  * Copyright (C) 2024 by Matthieu PETIT
 \*---------------------------------------------------------------------------*/
 #include "Solver.hpp"
+#include "FEMProblem.hpp"
 #include "System.hpp"
 #include <iostream>
 #include <memory>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -22,10 +24,12 @@ Solver::Solver(Mesh& mesh_, FEMParameters parameters_) :
                 mesh(mesh_), 
                 parameters(parameters_),
                 elementList(mesh_.getElements()),
-                edgeList(mesh_.getEdges()){ //, 
-                // Ae(mesh_.getNodesNumber(),mesh_.getNodesNumber()),
-                // be(mesh_.getNodesNumber()),
-                // Ue(mesh_.getNodesNumber()) {
+                edgeList(mesh_.getEdges()), 
+                labelDirHEdges(parameters_.getHomogeneousDirichletLabels()),
+                labelDirNHEdges(parameters_.getDirichletLabels()),
+                Ae(mesh_.getNodesNumber(),mesh_.getNodesNumber()),
+                be(mesh_.getNodesNumber()),
+                Ue(mesh_.getNodesNumber()) {
 
     std::cout << "---- Constructing the solver... ----" << std::endl;
     ptsNb = mesh.getNodesNumber();
@@ -56,8 +60,174 @@ Solver::Solver(Mesh& mesh_, FEMParameters parameters_) :
 
     sortBoundaryEdges(parameters.getHomogeneousDirichletLabels(), 
                       parameters.getDirichletLabels(), 
-                      parameters.getNeumannLabels());
+                      parameters.getNeumannLabels()); // (TODO) get rid of the parameters
 
+}
+
+
+void Solver::dirichletHConditionEigen(){
+
+    for (const auto& edge : dirHEdges){
+        for (const auto& node : edge->getNodeList()){
+            int I = node.getId();
+            be.coeffRef(I-1) = 0.0;
+            for (size_t i = 0; i < Ae.cols(); ++i) {
+                Ae.coeffRef(I-1, i) = 0.0;
+                Ae.coeffRef(i,I-1) = 0.0;
+            }
+            Ae.coeffRef(I-1, I-1) = 1.0;
+        }
+    }
+}
+
+void Solver::dirichletNHConditionEigen(){
+
+    for (int i = 0 ; i < valuesIndices.size() ; ++i){
+        int I = valuesIndices[i].indice;
+        Real value = valuesIndices[i].value;
+        be.coeffRef(I) += value;
+        for (size_t i = 0; i < Ae.cols(); ++i) {
+            Ae.coeffRef(I, i) = 0.0;
+            Ae.coeffRef(i,I) = 0.0;
+        }
+        Ae.coeffRef(I, I) = 1.0;
+    }
+}
+
+void Solver::assembleEigenTest(){
+    int nodePerElement = elementList[0].getNodes().size();
+    
+    for (auto& element : elementList){
+
+        MatrixReal MatElem(nodePerElement, VectorReal(nodePerElement, 0.0));
+        VectorReal SMbrElem(nodePerElement, 0.0);
+        
+        // Integrate the current element
+        element.intElem(MatElem, SMbrElem);
+        int I,J;
+        const std::vector<Node>& elemNodes = element.getNodes();
+        const std::vector<int>& elemNodesIds = element.getNodeIDs();
+
+        for (int i  = 0 ; i < elemNodes.size() ; ++i){
+            I = elemNodesIds[i];
+            be[I-1] += SMbrElem[i];
+            for (int j = 0 ; j <= i ; ++j){
+                J = elemNodesIds[j];
+                if (isOnEdge(labelDirNHEdges, elemNodes[j].getLabel())){
+                    valuesIndices.push_back({J-1, FEMProblem::UD(elemNodes[j]) * MatElem[i][j]});
+                    continue;
+                }
+                if (I != J){
+                    Ae.coeffRef(I-1, J-1) += MatElem[i][j]; 
+                    Ae.coeffRef(J-1, I-1) += MatElem[i][j]; 
+                }
+                else {
+                    Ae.coeffRef(I-1, I-1) += MatElem[i][j]; 
+                }
+            }
+
+        }
+    }
+
+    dirichletHConditionEigen();
+    dirichletNHConditionEigen();
+}
+
+
+
+bool Solver::eigenSolve() {
+
+    assembleEigenTest();
+    
+    // (TODO) Verify the node with Dirichlet condition 
+    Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
+    // Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> solver;
+    solver.compute(Ae); 
+    if (solver.info() != Eigen::Success) {
+        std::cerr << "Error while decomposing the matrix." << std::endl;
+        
+        Eigen::MatrixXd A_dense = Eigen::MatrixXd(Ae);
+        cout << "---- Solved with SVD ----" << endl;
+
+        Eigen::JacobiSVD<Eigen::MatrixXd> svd(Ae, Eigen::ComputeThinU | Eigen::ComputeThinV);
+
+        Ue = svd.solve(be);
+
+
+        return true;
+    }
+    else {
+
+        Ue = solver.solve(be); 
+
+        if (solver.info() != Eigen::Success) {
+            std::cerr << "Error in the resolution." << std::endl;
+            return false;
+        }
+        return true;
+    }
+
+
+    
+    return true;
+}
+
+void Solver::assembleEigen(){
+    std::cout << "--- Assembling the matrix : -----" << std::endl;
+
+    int nodePerElement = elementList[0].getNodes().size();
+    
+    for (auto& element : elementList){
+
+        MatrixReal MatElem(nodePerElement, VectorReal(nodePerElement, 0.0));
+        VectorReal SMbrElem(nodePerElement, 0.0);
+        
+        // Integrate the current element
+        element.intElem(MatElem, SMbrElem);
+
+        int I,J;
+        const std::vector<Node>& elemNodes = element.getNodes();
+        const std::vector<int>& elemNodesIds = element.getNodeIDs();
+
+        for (int i  = 0 ; i < elemNodes.size() ; i++){
+            I = elemNodesIds[i];
+            if (isOnEdge(labelDirHEdges, elemNodes[i].getLabel())){
+                // Ae.coeffRef(I-1, I-1) = 1.0;
+                continue;
+            }            
+            
+            be[I-1] += SMbrElem[i];
+
+            for(int j = 0 ; j <= i ; j++){
+                int nodeId = elemNodes[j].getLabel();
+                J = elemNodesIds[j];
+                if (isOnEdge(labelDirHEdges, nodeId)){
+                    // Ae.coeffRef(J-1,J-1) = 1.0;
+                    continue;
+                }
+                if (isOnEdge(labelDirNHEdges, nodeId)){
+                    be[J-1] -= FEMProblem::UD(elemNodes[j]) * MatElem[i][j]; 
+                    Ae.coeffRef(J-1, J-1) = 1.0; 
+                    continue;
+                }
+                if (I != J){
+                    Ae.coeffRef(I-1, J-1) += MatElem[i][j]; 
+                    Ae.coeffRef(J-1, I-1) += MatElem[i][j]; 
+                }
+                else {
+                    Ae.coeffRef(I-1, I-1) += MatElem[i][j]; 
+                }
+            }
+        }
+    }
+
+}
+
+bool Solver::isOnEdge(const std::vector<std::string>& labels, const int nodeId){
+    for (auto& label : labels) {
+        if (nodeId == std::stoi(label)) return true;
+    }
+    return false;
 }
 
 void Solver::assemble(){
@@ -373,26 +543,6 @@ void Solver::assmat(int I, int J, Real X, VectorInt& ADPRCL, VectorInt& NUMCOL,
     NEXTAD += 1;
 }
 
-
-// bool Solver::eigenSolve() {
-
-//     // (TODO) Verify the node with Dirichlet condition 
-//     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
-//     solver.compute(Ae); 
-//     if (solver.info() != Eigen::Success) {
-//         std::cerr << "Error while decomposing the matrix." << std::endl;
-//         return false;
-//     }
-
-//     Ue = solver.solve(be); 
-
-//     if (solver.info() != Eigen::Success) {
-//         std::cerr << "Error in the resolution." << std::endl;
-//         return false;
-//     }
-//     return true;
-// }
-
 void Solver::printEdgesLists(){
 
     std::cout << std::endl << "Homogeneous Dirichlet : " << std::endl;
@@ -434,18 +584,18 @@ void Solver::printB(){
     std::cout << endl;
 }
 
-// void Solver::printBe(){
-//     std::cout << "Second member be : \n";
-//     for(auto el : be){
-//         std::cout << el << " ";
-//     }
-//     std::cout << endl;
-// }
-// void Solver::printAe(){
+void Solver::printBe(){
+    std::cout << "Second member be : \n";
+    for(auto el : be){
+        std::cout << el << " ";
+    }
+    std::cout << endl;
+}
+void Solver::printAe(){
     
-// Eigen::MatrixXd denseMatrix = Eigen::MatrixXd(Ae);
-//     std::cout << "Matrice A :\n" << denseMatrix << std::endl;
-// }
+Eigen::MatrixXd denseMatrix = Eigen::MatrixXd(Ae);
+    std::cout << "Matrice A :\n" << denseMatrix << std::endl;
+}
 
 void Solver::printA(){
     
@@ -465,14 +615,14 @@ void Solver::printU(){
     }
 }
 
-// void Solver::printUe(){
+void Solver::printUe(){
 
-//     std::cout << "Vector Ue : \n";
+    std::cout << "Vector Ue : \n";
 
-//     for(auto it : Ue){
-//         cout << it << " ";
-//     }
-// }
+    for(auto it : Ue){
+        cout << it << " ";
+    }
+}
 
 
 

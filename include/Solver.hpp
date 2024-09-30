@@ -15,9 +15,9 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
-// #include <Eigen/Sparse>
-// #include <Eigen/SparseLU>
-// #include <Eigen/SparseCholesky>
+#include <Eigen/Sparse>
+#include <Eigen/SparseLU>
+#include <Eigen/SparseCholesky>
 
 #include "Mesh.hpp"
 #include "FEMParameters.hpp"
@@ -25,6 +25,11 @@
 #include "System.hpp"
 #include "FEMAssembly.hpp"
 
+
+    struct DirDico {
+        int indice;
+        Real value;
+    };
 
     class Solver {
 
@@ -34,11 +39,11 @@
 
             // Matrix of the linear system
             VectorReal A;
-            // Eigen::SparseMatrix<Real> Ae;
+            Eigen::SparseMatrix<Real> Ae;
 
             // Second member of the linear system
             VectorReal b;
-            // Eigen::VectorXd be;
+            Eigen::VectorXd be;
 
             // Non Ordered Sparse Storage elements
             VectorInt AdPrCoefLi;
@@ -58,7 +63,7 @@
 
             // Solution of the linear system
             VectorReal U;
-            // Eigen::VectorXd Ue;
+            Eigen::VectorXd Ue;
 
 
             // Number of nodes
@@ -80,9 +85,14 @@
 
             // List of the homogeneous Dirichlet edges
             std::vector<const Edge*> dirHEdges;
+            std::vector<std::string> labelDirHEdges;
 
             // List of the non-homogeneous Dirichlet edges
             std::unordered_map<int, std::vector<const Edge*>> dirNHEdges;
+
+            std::vector<DirDico> valuesIndices;
+
+            std::vector<std::string> labelDirNHEdges;
             
             // List of the Neumann edges
             std::unordered_map<int, std::vector<Edge*>> neumEdges;
@@ -102,6 +112,15 @@
             * Assemble the linear system
             */
             void assemble();
+
+            void assembleEigen();
+            void assembleEigenTest();
+
+            void dirichletHConditionEigen();
+
+            void dirichletNHConditionEigen();
+
+            bool isOnEdge(const std::vector<std::string>& labels, const int nodeId);
 
 
             void assmat(int I, int J, Real X, VectorInt& ADPRCL, VectorInt& NUMCOL, 
@@ -150,15 +169,15 @@
 
 
             void printB();
-            // void printBe();
+            void printBe();
             void printA();
-            // void printAe();
+            void printAe();
             void printU();
-            // void printUe();
+            void printUe();
 
             VectorReal& getU(){return U;}
 
-            // Eigen::VectorXd& getUe(){return Ue;}
+            Eigen::VectorXd& getUe(){return Ue;}
 
 
     };

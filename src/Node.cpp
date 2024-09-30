@@ -15,6 +15,8 @@
 
         
 
+    Node::Node(Real x_, Real y_, Real z_, int id_, int label_) : x(x_), y(y_), z(z_), id(id_), label(label_) {}
+
     Node::Node(Real x_, Real y_, Real z_, int id_) : x(x_), y(y_), z(z_), id(id_) {}
 
     Node::Node(Real x_, Real y_, Real z_) : x(x_), y(y_), z(z_), id(-1) {}

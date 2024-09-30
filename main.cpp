@@ -19,6 +19,8 @@
 #include <vector>
 #include <memory>
 
+#include "Eigen/src/Core/Matrix.h"
+#include "Element.hpp"
 #include "FEMAssembly.hpp"
 #include "Mesh.hpp"
 #include "Node.hpp"
@@ -28,6 +30,7 @@
 #include "Solver.hpp"
 #include "FEMParameters.hpp"
 #include "Solver.hpp"
+#include "Types.hpp"
 
 using namespace std;
 
@@ -44,16 +47,24 @@ int main(int argc, char *argv[]){
 
     std::unique_ptr<Solver> solver = std::make_unique<Solver>(mesh, parameters);
 
-    solver->assemble();
+    // solver->assemble();
 
-    solver->fromNOSStoOSS();
+    // solver->fromNOSStoOSS();
 
-    solver->fromOSStoPR();
+    // solver->fromOSStoPR();
 
-    solver->decompLU();
+    // solver->decompLU();
 
-    VectorReal& U = solver->getU();
-    FEMUtilities::saveResults(U, parameters.getSavingFile());
+    // VectorReal& U = solver->getU();
+
+    // FEMUtilities::saveResults(U, parameters.getSavingFile());
+
+
+    solver->eigenSolve();
+
+    Eigen::VectorXd& Ue = solver->getUe();
+
+    FEMUtilities::saveResults(Ue, parameters.getSavingFile());
 
     std::cout << "-------- End of the simulation --------" << endl << endl;
 

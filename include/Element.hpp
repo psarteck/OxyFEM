@@ -105,6 +105,13 @@
             void setNuDElem(int i, int val);
             void setuDElem(int i, Real val);
 
+            void printNodes() { 
+                for(auto node : nodes){
+                    cout << node.getLabel() << " ";
+                }
+                cout << endl;
+            }
+
 
     };
 
