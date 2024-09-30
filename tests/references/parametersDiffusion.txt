@@ -1,0 +1,7 @@
+mesh=square1_2N50.msh 
+HomogeneousDirichletLabel=
+DirichletLabel=1 4
+NeumannLabel=2 3
+DomainLabels=0 
+quadrature=gauss 
+lagrange=P1 
