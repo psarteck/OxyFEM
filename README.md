@@ -48,3 +48,18 @@ $$f(v) = \int_\Omega f_\Omega (x) v(x) dx + \int_{\Gamma_N} g_N(\gamma) v(\gamma
         cmake -G Ninja ..
         ninja
         ```
+
+## How to run 
+
+1. Rename the file `parameters.txt.example` to `parameters.txt`
+2. Launch the executable : 
+    ```
+    ./build/exeFEM
+    ```
+3. The tests are located in the folder `build/tests/`, to launch the executables :
+    ```
+    ./build/tests/oxyTest
+    ./build/tests/oxyTestDiffusion
+    ./build/tests/oxyTestCircle
+    ./build/tests/oxyTestSinSin
+    ```
