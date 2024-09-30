@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - eigenTests
   pull_request:
     branches:
       - main
+      - eigenTests
 
 jobs:
   build:

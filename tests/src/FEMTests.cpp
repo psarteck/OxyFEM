@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <fstream>
 #include <string>
 #include <cstdlib>  
@@ -6,9 +7,11 @@
 #include <unordered_map>
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 
 #include "FEMTests.hpp"
+#include "Types.hpp"
 
 namespace FEMTests {
 
@@ -138,6 +141,52 @@ bool CompareFiles(const std::string& resultFile, const std::string& referenceFil
     }
 
     return true;
+}
+
+VectorReal loadSolution(const std::string& resultFile){
+    std::ifstream resultStream(resultFile);
+    if (!resultStream.is_open()) {
+        std::cerr << "Error: Unable to open results file " << resultFile << std::endl;
+        return {-1};
+    }
+    VectorReal sol;
+    Real resultValue;
+    while (resultStream >> resultValue ) {
+        sol.push_back(resultValue);
+    }
+    return sol;
+}
+
+
+VectorReal exactDiffusion(const std::vector<Node>& nodes){
+    VectorReal uex;
+    for(auto node : nodes){
+        uex.push_back(std::cos(M_PI * node.getX()) * std::cos(M_PI * node.getY()));
+    }
+    return uex;
+}
+
+VectorReal exactSinSin(const std::vector<Node>& nodes){
+    VectorReal uex;
+    for(auto node : nodes){
+        uex.push_back(std::sin(M_PI * node.getX()) * std::sin(M_PI * node.getY()));
+    }
+    return uex;
+}
+
+bool relativeError(const VectorReal& u, const VectorReal& uex, const Real eps){
+    if(u.size() != uex.size()){
+        return false;
+    }
+    Real error = 0.0;
+    for(size_t i = 0 ; i < u.size() ; i++){
+        if (std::abs(u[i]) > std::numeric_limits<Real>::epsilon()) {
+            error += std::abs((u[i] - uex[i]) / uex[i]);
+        }
+    }
+    error = error / uex.size();
+    if(error > eps) return false;
+    else return true;
 }
 
 

@@ -5,7 +5,8 @@
 
 #include "Types.hpp"
 #include <unordered_map>
-
+#include <string>
+#include "Node.hpp"
 
 
 namespace FEMTests {
@@ -27,6 +28,13 @@ std::string GetCurrentWorkingDirectory();
 
 bool CompareFiles(const std::string& resultFile, const std::string& referenceFile, Real tolerance);
 
+VectorReal loadSolution(const std::string& filename);
+
+bool relativeError(const VectorReal& u, const VectorReal& uex, const Real eps);
+
+VectorReal exactDiffusion(const std::vector<Node>& nodes);
+
+VectorReal exactSinSin(const std::vector<Node>& nodes);
 }
 
 #endif
